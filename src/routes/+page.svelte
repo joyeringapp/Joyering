@@ -360,9 +360,10 @@
     </div>
   </div>
 
-{:else}
-  <div class="page">
-    <div class="wrapper">
+  {:else}
+  <div class="app-shell">
+    <div class="page">
+      <div class="wrapper">
       {#if screen === 'garden'}
         <h1>The Joy Garden</h1>
         <p class="subtitle garden-subtitle">Catch a joyful moment!</p>
@@ -462,6 +463,7 @@
       {/if}
     </div>
   </div>
+</div>
 {/if}
 
 <style>
@@ -540,6 +542,12 @@
     font-size: 1rem;
     outline: none;
   }
+
+  .app-shell {
+  min-height: 100vh;
+  width: 100%;
+  background: #000;
+}
 
   .auth-form button,
   .collection-button,
