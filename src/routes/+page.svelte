@@ -818,11 +818,11 @@
     }
 
     .page {
-      padding:
-        calc(20px + env(safe-area-inset-top))
-        14px
-        calc(34px + env(safe-area-inset-bottom));
-    }
+  padding:
+    env(safe-area-inset-top)
+    14px
+    calc(34px + env(safe-area-inset-bottom));
+}
 
     .wrapper {
   max-width: 360px;
