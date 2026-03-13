@@ -567,7 +567,7 @@
   @media (max-width: 640px) {
     .page {
   padding:
-    calc(62px + env(safe-area-inset-top))
+    calc(78px + env(safe-area-inset-top))
     14px
     calc(34px + env(safe-area-inset-bottom));
 }
@@ -595,8 +595,7 @@
     .grid {
       max-width: 360px;
       gap: 20px 8px;
-      margin-bottom: 64px;
-    }
+      margin-bottom: 64px; }
 
     .visual-slot {
       width: 60px;
