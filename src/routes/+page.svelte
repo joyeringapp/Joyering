@@ -330,13 +330,16 @@
   }
 
   .page {
-    min-height: 100vh;
-    width: 100%;
-    background: #000;
-    display: flex;
-    justify-content: center;
-    padding: 58px 20px 36px;
-  }
+  min-height: 100vh;
+  width: 100%;
+  background: #000;
+  display: flex;
+  justify-content: center;
+  padding:
+    calc(72px + env(safe-area-inset-top))
+    20px
+    calc(36px + env(safe-area-inset-bottom));
+}
 
   .wrapper {
     width: 100%;
@@ -579,12 +582,12 @@
     }
 
     .garden-subtitle {
-      margin: 12px 0 74px;
-    }
+  margin: 14px 0 58px;
+}
 
-    .collection-subtitle {
-      margin: 14px 0 48px;
-    }
+.collection-subtitle {
+  margin: 16px 0 38px;
+}
 
     .grid {
       max-width: 360px;
