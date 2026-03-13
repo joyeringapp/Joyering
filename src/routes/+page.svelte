@@ -824,8 +824,9 @@
     }
 
     .wrapper {
-      max-width: 360px;
-    }
+  max-width: 360px;
+  margin: 60px auto 0;
+}
 
     .garden-subtitle {
       margin: 14px 0 58px;
