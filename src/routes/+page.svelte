@@ -818,14 +818,14 @@
 
     .page {
       padding:
-        calc(60px + env(safe-area-inset-top))
+        calc(20px + env(safe-area-inset-top))
         14px
         calc(34px + env(safe-area-inset-bottom));
     }
 
     .wrapper {
   max-width: 360px;
-  margin: 60px auto 0;
+  margin: 48px auto 0;
 }
 
     .garden-subtitle {
