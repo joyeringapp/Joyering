@@ -1,5 +1,39 @@
 <script>
-  import { onDestroy, onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte'
+  import { supabase } from '$lib/supabase'
+
+  let email = ''
+  let isLoadingSession = true
+
+  /** @type {import('@supabase/supabase-js').User | null} */
+  let user = null
+
+  /** @type {import('@supabase/supabase-js').Subscription | null} */
+  let authSubscription = null
+
+  async function login() {
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: window.location.origin
+      }
+    })
+
+    if (error) {
+      alert(error.message)
+    } else {
+      alert('Check your email for the login link!')
+      email = ''
+    }
+  }
+
+  async function logout() {
+    const { error } = await supabase.auth.signOut()
+
+    if (error) {
+      alert(error.message)
+    }
+  }
 
   /** @type {{ name: string; icon: string; key: string }[]} */
   const categories = [
@@ -104,7 +138,54 @@
     localStorage.setItem(STORAGE_KEY, String(butterflyCount));
   }
 
-  onMount(() => {
+  async function loadJoyState() {
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from('joy_state')
+      .select('butterfly_count')
+      .eq('user_id', user.id)
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error loading joy state:', error);
+      return;
+    }
+
+    if (data) {
+      butterflyCount = data.butterfly_count;
+      saveButterflyCount();
+    } else {
+      const { error: insertError } = await supabase
+        .from('joy_state')
+        .insert({
+          user_id: user.id,
+          butterfly_count: butterflyCount
+        });
+
+      if (insertError) {
+        console.error('Error creating joy state:', insertError);
+      }
+    }
+  }
+
+  async function saveJoyState() {
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('joy_state')
+      .update({
+        butterfly_count: butterflyCount,
+        updated_at: new Date().toISOString()
+      })
+      .eq('user_id', user.id);
+
+    if (error) {
+      console.error('Error saving joy state:', error);
+    }
+  }
+
+  onMount(async () => {
     loadSavedButterflyCount();
     setupTapSounds();
 
@@ -127,6 +208,27 @@
       const img = new Image();
       img.src = `/butterflies/pulse${i}.gif`;
     }
+
+    const { data } = await supabase.auth.getSession();
+    user = data.session?.user ?? null;
+
+    if (user) {
+      await loadJoyState();
+    }
+
+    isLoadingSession = false;
+
+    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      user = session?.user ?? null;
+
+      if (user) {
+        await loadJoyState();
+      }
+
+      isLoadingSession = false;
+    });
+
+    authSubscription = listener.subscription;
   });
 
   /**
@@ -139,6 +241,8 @@
 
     butterflyCount += 1;
     saveButterflyCount();
+    saveJoyState();
+
     currentPulseNumber = ((butterflyCount - 1) % 10) + 1;
     currentAnimatingCategory = category.key;
 
@@ -193,6 +297,7 @@
     releaseTimer = setTimeout(() => {
       butterflyCount = 0;
       saveButterflyCount();
+      saveJoyState();
       isReleasing = false;
       releaseTimer = null;
     }, 3000);
@@ -201,6 +306,7 @@
   onDestroy(() => {
     if (resetTimer) clearTimeout(resetTimer);
     if (releaseTimer) clearTimeout(releaseTimer);
+    authSubscription?.unsubscribe();
   });
 </script>
 
@@ -208,107 +314,162 @@
   <title>Joyering</title>
 </svelte:head>
 
-<div class="page">
-  <div class="wrapper">
-    {#if screen === 'garden'}
-      <h1>The Joy Garden</h1>
-      <p class="subtitle garden-subtitle">Catch a joyful moment!</p>
+{#if isLoadingSession}
+  <div class="auth-page">
+    <div class="auth-card">
+      <img
+        class="auth-icon"
+        src="/icon-192.png"
+        alt="Joyering"
+        draggable="false"
+      />
 
-      <div class="grid">
-        {#each categories as category}
+      <h1>Joyering</h1>
+      <p class="auth-subtitle">Loading...</p>
+    </div>
+  </div>
+
+{:else if !user}
+  <div class="auth-page">
+    <div class="auth-card">
+      <img
+        class="auth-icon"
+        src="/icon-192.png"
+        alt="Joyering"
+        draggable="false"
+      />
+
+      <h1>Joyering</h1>
+
+      <p class="auth-subtitle">
+        Catch your joyful moments, one butterfly at a time.
+      </p>
+
+      <div class="auth-form">
+        <input
+          type="email"
+          placeholder="Your email"
+          bind:value={email}
+        />
+
+        <button on:click={login}>
+          Continue with Magic Link
+        </button>
+      </div>
+    </div>
+  </div>
+
+{:else}
+  <div class="app-shell">
+    <div class="topbar">
+      <button class="logout-button" on:click={logout}>
+        Log out
+      </button>
+    </div>
+
+    <div class="page">
+      <div class="wrapper">
+        {#if screen === 'garden'}
+          <h1>The Joy Garden</h1>
+          <p class="subtitle garden-subtitle">Catch a joyful moment!</p>
+
+          <div class="grid">
+            {#each categories as category}
+              <button
+                class="category"
+                type="button"
+                on:click={() => handleCategoryTap(category)}
+              >
+                <div class="visual-slot">
+                  {#if currentAnimatingCategory === category.key && currentPulseNumber}
+                    <img
+                      class="pulse-butterfly"
+                      src={`/butterflies/pulse${currentPulseNumber}.gif`}
+                      alt=""
+                      draggable="false"
+                    />
+                  {:else}
+                    <img
+                      class="category-icon"
+                      src={category.icon}
+                      alt={category.name}
+                      draggable="false"
+                    />
+                  {/if}
+                </div>
+
+                <span class="category-label">{category.name}</span>
+              </button>
+            {/each}
+          </div>
+
           <button
-            class="category"
+            class="collection-button"
             type="button"
-            on:click={() => handleCategoryTap(category)}
+            on:click={openCollection}
           >
-            <div class="visual-slot">
-              {#if currentAnimatingCategory === category.key && currentPulseNumber}
+            See Your Joy Collection
+          </button>
+        {:else}
+          <div class="collection-screen">
+            {#if isReleasing}
+              <div class="release-screen">
                 <img
-                  class="pulse-butterfly"
-                  src={`/butterflies/pulse${currentPulseNumber}.gif`}
+                  class="release-animation"
+                  src="/animations/release-butterflies.gif"
                   alt=""
                   draggable="false"
                 />
-              {:else}
-                <img
-                  class="category-icon"
-                  src={category.icon}
-                  alt={category.name}
-                  draggable="false"
-                />
-              {/if}
-            </div>
+              </div>
+            {:else}
+              <h1>Collected Joy</h1>
+              <p class="subtitle collection-subtitle">Release when you reach 21!</p>
 
-            <span class="category-label">{category.name}</span>
-          </button>
-        {/each}
-      </div>
+              <div class="jar-block">
+                <div class="jar-area">
+                  <img
+                    class="jar-image"
+                    src={getJarImage()}
+                    alt="Collected joy jar"
+                    draggable="false"
+                  />
+                </div>
 
-      <button
-        class="collection-button"
-        type="button"
-        on:click={openCollection}
-      >
-        See Your Joy Collection
-      </button>
-    {:else}
-      <div class="collection-screen">
-        {#if isReleasing}
-          <div class="release-screen">
-            <img
-              class="release-animation"
-              src="/animations/release-butterflies.gif"
-              alt=""
-              draggable="false"
-            />
-          </div>
-        {:else}
-          <h1>Collected Joy</h1>
-          <p class="subtitle collection-subtitle">Release when you reach 21!</p>
+                <p class="joy-count">
+                  {#if butterflyCount === 1}
+                    You have collected 1 joyful moment
+                  {:else if butterflyCount > 1}
+                    You have collected {butterflyCount} joyful moments
+                  {/if}
+                </p>
+              </div>
 
-          <div class="jar-block">
-            <div class="jar-area">
-              <img
-                class="jar-image"
-                src={getJarImage()}
-                alt="Collected joy jar"
-                draggable="false"
-              />
-            </div>
+              <div class="collection-buttons">
+                {#if butterflyCount >= 21}
+                  <button
+                    class="fly-button"
+                    type="button"
+                    on:click={letThemFly}
+                  >
+                    Let Them Fly!
+                  </button>
+                {/if}
 
-            <p class="joy-count">
-              {#if butterflyCount === 1}
-                You have collected 1 joyful moment
-              {:else if butterflyCount > 1}
-                You have collected {butterflyCount} joyful moments
-              {/if}
-            </p>
-          </div>
-
-          <div class="collection-buttons">
-            {#if butterflyCount >= 21}
-              <button
-                class="fly-button"
-                type="button"
-                on:click={letThemFly}
-              >
-                Let Them Fly!
-              </button>
+                <button
+                  class="collection-button"
+                  type="button"
+                  on:click={() => (screen = 'garden')}
+                >
+                  Collect More Joy
+                </button>
+              </div>
             {/if}
-
-            <button
-              class="collection-button"
-              type="button"
-              on:click={() => (screen = 'garden')}
-            >
-              Collect More Joy
-            </button>
           </div>
         {/if}
       </div>
-    {/if}
+    </div>
   </div>
-</div>
+{/if}
 
 <style>
   :global(html, body) {
@@ -329,17 +490,117 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  .auth-page {
+    min-height: 100vh;
+    width: 100%;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+  }
+
+  .auth-card {
+    width: 100%;
+    max-width: 480px;
+    padding: 44px 32px;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 24px;
+  }
+
+  .auth-icon {
+    width: 96px;
+    height: 96px;
+    object-fit: contain;
+    margin-bottom: 4px;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .auth-subtitle {
+    margin: 0;
+    font-size: 1.08rem;
+    line-height: 1.5;
+    opacity: 0.92;
+    max-width: 360px;
+  }
+
+  .auth-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .auth-form input {
+    width: 100%;
+    height: 52px;
+    border: none;
+    border-radius: 12px;
+    padding: 0 16px;
+    font-size: 1rem;
+    outline: none;
+  }
+
+  .auth-form button,
+  .logout-button,
+  .collection-button,
+  .fly-button {
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    outline: none;
+  }
+
+  .auth-form button {
+    width: 100%;
+    min-height: 52px;
+    padding: 0 16px;
+    background: #62c7cf;
+    box-shadow: 0 8px 20px rgba(98, 199, 207, 0.25);
+  }
+
+  .app-shell {
+    min-height: 100vh;
+    width: 100%;
+    background: #000;
+  }
+
+  .topbar {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    padding: 16px 16px 0;
+  }
+
+  .logout-button {
+    min-height: 40px;
+    padding: 0 14px;
+    background: rgba(255, 255, 255, 0.12);
+  }
+
   .page {
-  min-height: 100vh;
-  width: 100%;
-  background: #000;
-  display: flex;
-  justify-content: center;
-  padding:
-    calc(72px + env(safe-area-inset-top))
-    20px
-    calc(36px + env(safe-area-inset-bottom));
-}
+    min-height: 100vh;
+    width: 100%;
+    background: #000;
+    display: flex;
+    justify-content: center;
+    padding:
+      calc(28px + env(safe-area-inset-top))
+      20px
+      calc(36px + env(safe-area-inset-bottom));
+  }
 
   .wrapper {
     width: 100%;
@@ -407,9 +668,16 @@
 
   .category:focus,
   .category:focus-visible,
-  .category:active {
+  .category:active,
+  .logout-button:focus,
+  .logout-button:focus-visible,
+  .auth-form button:focus,
+  .auth-form button:focus-visible,
+  .collection-button:focus,
+  .collection-button:focus-visible,
+  .fly-button:focus,
+  .fly-button:focus-visible {
     outline: none;
-    background: transparent;
     box-shadow: none;
   }
 
@@ -456,16 +724,7 @@
     width: 100%;
     max-width: 320px;
     min-height: 46px;
-    border: none;
-    border-radius: 12px;
-    color: white;
-    font-size: 1.1rem;
-    font-weight: 700;
-    cursor: pointer;
     padding: 0 20px;
-    appearance: none;
-    -webkit-appearance: none;
-    outline: none;
   }
 
   .collection-button {
@@ -478,22 +737,18 @@
     box-shadow: 0 8px 20px rgba(216, 111, 165, 0.30);
   }
 
+  .auth-form button:hover,
   .collection-button:hover,
-  .fly-button:hover {
+  .fly-button:hover,
+  .logout-button:hover {
     filter: brightness(1.03);
   }
 
   .collection-button:active,
-  .fly-button:active {
+  .fly-button:active,
+  .auth-form button:active,
+  .logout-button:active {
     transform: translateY(1px);
-  }
-
-  .collection-button:focus,
-  .collection-button:focus-visible,
-  .fly-button:focus,
-  .fly-button:focus-visible {
-    outline: none;
-    box-shadow: none;
   }
 
   .collection-screen {
@@ -565,17 +820,6 @@
   }
 
   @media (max-width: 640px) {
-    .page {
-  padding:
-    calc(78px + env(safe-area-inset-top))
-    14px
-    calc(34px + env(safe-area-inset-bottom));
-}
-
-    .wrapper {
-      max-width: 360px;
-    }
-
     h1 {
       font-size: 2.05rem;
     }
@@ -584,18 +828,54 @@
       font-size: 1rem;
     }
 
-    .garden-subtitle {
-  margin: 14px 0 58px;
-}
+    .auth-page {
+      padding: 20px;
+    }
 
-.collection-subtitle {
-  margin: 16px 0 38px;
-}
+    .auth-card {
+      max-width: 420px;
+      padding: 36px 22px;
+      gap: 20px;
+    }
+
+    .auth-icon {
+      width: 84px;
+      height: 84px;
+    }
+
+    .auth-subtitle {
+      font-size: 1rem;
+      max-width: 300px;
+    }
+
+    .topbar {
+      padding: 12px 12px 0;
+    }
+
+    .page {
+      padding:
+        calc(20px + env(safe-area-inset-top))
+        14px
+        calc(34px + env(safe-area-inset-bottom));
+    }
+
+    .wrapper {
+      max-width: 360px;
+    }
+
+    .garden-subtitle {
+      margin: 14px 0 58px;
+    }
+
+    .collection-subtitle {
+      margin: 16px 0 38px;
+    }
 
     .grid {
       max-width: 360px;
       gap: 20px 8px;
-      margin-bottom: 64px; }
+      margin-bottom: 64px;
+    }
 
     .visual-slot {
       width: 60px;
