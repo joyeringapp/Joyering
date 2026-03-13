@@ -362,108 +362,110 @@
 
   {:else}
   <div class="app-shell">
+    <div class="topbar-spacer"></div>
+
     <div class="page">
       <div class="wrapper">
-      {#if screen === 'garden'}
-        <h1>The Joy Garden</h1>
-        <p class="subtitle garden-subtitle">Catch a joyful moment!</p>
+        {#if screen === 'garden'}
+          <h1>The Joy Garden</h1>
+          <p class="subtitle garden-subtitle">Catch a joyful moment!</p>
 
-        <div class="grid">
-          {#each categories as category}
-            <button
-              class="category"
-              type="button"
-              on:click={() => handleCategoryTap(category)}
-            >
-              <div class="visual-slot">
-                {#if currentAnimatingCategory === category.key && currentPulseNumber}
-                  <img
-                    class="pulse-butterfly"
-                    src={`/butterflies/pulse${currentPulseNumber}.gif`}
-                    alt=""
-                    draggable="false"
-                  />
-                {:else}
-                  <img
-                    class="category-icon"
-                    src={category.icon}
-                    alt={category.name}
-                    draggable="false"
-                  />
-                {/if}
-              </div>
+          <div class="grid">
+            {#each categories as category}
+              <button
+                class="category"
+                type="button"
+                on:click={() => handleCategoryTap(category)}
+              >
+                <div class="visual-slot">
+                  {#if currentAnimatingCategory === category.key && currentPulseNumber}
+                    <img
+                      class="pulse-butterfly"
+                      src={`/butterflies/pulse${currentPulseNumber}.gif`}
+                      alt=""
+                      draggable="false"
+                    />
+                  {:else}
+                    <img
+                      class="category-icon"
+                      src={category.icon}
+                      alt={category.name}
+                      draggable="false"
+                    />
+                  {/if}
+                </div>
 
-              <span class="category-label">{category.name}</span>
-            </button>
-          {/each}
-        </div>
+                <span class="category-label">{category.name}</span>
+              </button>
+            {/each}
+          </div>
 
-        <button
-          class="collection-button"
-          type="button"
-          on:click={openCollection}
-        >
-          See Your Joy Collection
-        </button>
-      {:else}
-        <div class="collection-screen">
-          {#if isReleasing}
-            <div class="release-screen">
-              <img
-                class="release-animation"
-                src="/animations/release-butterflies.gif"
-                alt=""
-                draggable="false"
-              />
-            </div>
-          {:else}
-            <h1>Collected Joy</h1>
-            <p class="subtitle collection-subtitle">Release when you reach 21!</p>
-
-            <div class="jar-block">
-              <div class="jar-area">
+          <button
+            class="collection-button"
+            type="button"
+            on:click={openCollection}
+          >
+            See Your Joy Collection
+          </button>
+        {:else}
+          <div class="collection-screen">
+            {#if isReleasing}
+              <div class="release-screen">
                 <img
-                  class="jar-image"
-                  src={getJarImage()}
-                  alt="Collected joy jar"
+                  class="release-animation"
+                  src="/animations/release-butterflies.gif"
+                  alt=""
                   draggable="false"
                 />
               </div>
+            {:else}
+              <h1>Collected Joy</h1>
+              <p class="subtitle collection-subtitle">Release when you reach 21!</p>
 
-              <p class="joy-count">
-                {#if butterflyCount === 1}
-                  You have collected 1 joyful moment
-                {:else if butterflyCount > 1}
-                  You have collected {butterflyCount} joyful moments
+              <div class="jar-block">
+                <div class="jar-area">
+                  <img
+                    class="jar-image"
+                    src={getJarImage()}
+                    alt="Collected joy jar"
+                    draggable="false"
+                  />
+                </div>
+
+                <p class="joy-count">
+                  {#if butterflyCount === 1}
+                    You have collected 1 joyful moment
+                  {:else if butterflyCount > 1}
+                    You have collected {butterflyCount} joyful moments
+                  {/if}
+                </p>
+              </div>
+
+              <div class="collection-buttons">
+                {#if butterflyCount >= 21}
+                  <button
+                    class="fly-button"
+                    type="button"
+                    on:click={letThemFly}
+                  >
+                    Let Them Fly!
+                  </button>
                 {/if}
-              </p>
-            </div>
 
-            <div class="collection-buttons">
-              {#if butterflyCount >= 21}
                 <button
-                  class="fly-button"
+                  class="collection-button"
                   type="button"
-                  on:click={letThemFly}
+                  on:click={() => (screen = 'garden')}
                 >
-                  Let Them Fly!
+                  Collect More Joy
                 </button>
-              {/if}
-
-              <button
-                class="collection-button"
-                type="button"
-                on:click={() => (screen = 'garden')}
-              >
-                Collect More Joy
-              </button>
-            </div>
-          {/if}
-        </div>
-      {/if}
+              </div>
+            {/if}
+          </div>
+        {/if}
+      </div>
     </div>
   </div>
-</div>
 {/if}
 
 <style>
@@ -549,6 +551,12 @@
   background: #000;
 }
 
+.topbar-spacer {
+  width: 100%;
+  height: 28px;
+  background: #000;
+}
+
   .auth-form button,
   .collection-button,
   .fly-button {
@@ -584,12 +592,13 @@
   }
 
   .wrapper {
-    width: 100%;
-    max-width: 760px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+  width: 100%;
+  max-width: 760px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto;
+}
 
   h1 {
     margin: 0;
@@ -826,6 +835,11 @@
     }
 
     .page {
+  min-height: 100vh;
+  width: 100%;
+  background: #000;
+  display: flex;
+  justify-content: center;
   padding:
     env(safe-area-inset-top)
     14px
