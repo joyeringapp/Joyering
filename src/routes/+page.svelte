@@ -312,6 +312,7 @@
 
 <svelte:head>
   <title>Joyering</title>
+  <meta name="theme-color" content="#000000">
 </svelte:head>
 
 {#if isLoadingSession}
