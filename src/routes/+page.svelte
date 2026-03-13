@@ -803,7 +803,7 @@
     display: block;
     user-select: none;
     -webkit-user-select: none;
-    transform: translateY(-24px);
+    transform: translateY(-32px);
   }
 
   @media (max-width: 640px) {
