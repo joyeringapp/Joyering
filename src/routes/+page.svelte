@@ -25,6 +25,8 @@
     '/sounds/si.mp3'
   ];
 
+  const STORAGE_KEY = 'joyering-butterfly-count';
+
   /** @type {HTMLAudioElement[]} */
   let tapSounds = [];
 
@@ -86,7 +88,24 @@
     sound.play().catch(() => {});
   }
 
+  function loadSavedButterflyCount() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+
+    if (saved === null) return;
+
+    const parsed = Number(saved);
+
+    if (!Number.isNaN(parsed) && parsed >= 0) {
+      butterflyCount = parsed;
+    }
+  }
+
+  function saveButterflyCount() {
+    localStorage.setItem(STORAGE_KEY, String(butterflyCount));
+  }
+
   onMount(() => {
+    loadSavedButterflyCount();
     setupTapSounds();
 
     preloadImages([
@@ -119,6 +138,7 @@
     playRandomTapSound();
 
     butterflyCount += 1;
+    saveButterflyCount();
     currentPulseNumber = ((butterflyCount - 1) % 10) + 1;
     currentAnimatingCategory = category.key;
 
@@ -172,6 +192,7 @@
 
     releaseTimer = setTimeout(() => {
       butterflyCount = 0;
+      saveButterflyCount();
       isReleasing = false;
       releaseTimer = null;
     }, 3000);
