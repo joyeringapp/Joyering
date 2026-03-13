@@ -816,13 +816,9 @@
       max-width: 300px;
     }
 
-    .topbar {
-      padding: 12px 12px 0;
-    }
-
     .page {
       padding:
-        calc(20px + env(safe-area-inset-top))
+        calc(36px + env(safe-area-inset-top))
         14px
         calc(34px + env(safe-area-inset-bottom));
     }
