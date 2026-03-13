@@ -818,7 +818,7 @@
 
     .page {
       padding:
-        calc(36px + env(safe-area-inset-top))
+        calc(60px + env(safe-area-inset-top))
         14px
         calc(34px + env(safe-area-inset-bottom));
     }
