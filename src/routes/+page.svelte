@@ -549,6 +549,19 @@
   min-height: 100vh;
   width: 100%;
   background: #000;
+  position: relative;
+}
+
+.app-shell::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #000;
+  z-index: 9999;
+  pointer-events: none;
 }
 
 .topbar-spacer {
