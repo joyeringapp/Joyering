@@ -35,3 +35,7 @@ export default {
             purpose: 'any maskable'
           }
         ]
+      }
+    })
+  ]
+};
