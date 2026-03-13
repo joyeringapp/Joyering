@@ -353,120 +353,112 @@
         />
 
         <button on:click={login}>
-          Continue with Magic Link
+          Send Login Link
         </button>
       </div>
     </div>
   </div>
 
 {:else}
-  <div class="app-shell">
-    <div class="topbar">
-      <button class="logout-button" on:click={logout}>
-        Log out
-      </button>
-    </div>
+  <div class="page">
+    <div class="wrapper">
+      {#if screen === 'garden'}
+        <h1>The Joy Garden</h1>
+        <p class="subtitle garden-subtitle">Catch a joyful moment!</p>
 
-    <div class="page">
-      <div class="wrapper">
-        {#if screen === 'garden'}
-          <h1>The Joy Garden</h1>
-          <p class="subtitle garden-subtitle">Catch a joyful moment!</p>
+        <div class="grid">
+          {#each categories as category}
+            <button
+              class="category"
+              type="button"
+              on:click={() => handleCategoryTap(category)}
+            >
+              <div class="visual-slot">
+                {#if currentAnimatingCategory === category.key && currentPulseNumber}
+                  <img
+                    class="pulse-butterfly"
+                    src={`/butterflies/pulse${currentPulseNumber}.gif`}
+                    alt=""
+                    draggable="false"
+                  />
+                {:else}
+                  <img
+                    class="category-icon"
+                    src={category.icon}
+                    alt={category.name}
+                    draggable="false"
+                  />
+                {/if}
+              </div>
 
-          <div class="grid">
-            {#each categories as category}
-              <button
-                class="category"
-                type="button"
-                on:click={() => handleCategoryTap(category)}
-              >
-                <div class="visual-slot">
-                  {#if currentAnimatingCategory === category.key && currentPulseNumber}
-                    <img
-                      class="pulse-butterfly"
-                      src={`/butterflies/pulse${currentPulseNumber}.gif`}
-                      alt=""
-                      draggable="false"
-                    />
-                  {:else}
-                    <img
-                      class="category-icon"
-                      src={category.icon}
-                      alt={category.name}
-                      draggable="false"
-                    />
-                  {/if}
-                </div>
+              <span class="category-label">{category.name}</span>
+            </button>
+          {/each}
+        </div>
 
-                <span class="category-label">{category.name}</span>
-              </button>
-            {/each}
-          </div>
+        <button
+          class="collection-button"
+          type="button"
+          on:click={openCollection}
+        >
+          See Your Joy Collection
+        </button>
+      {:else}
+        <div class="collection-screen">
+          {#if isReleasing}
+            <div class="release-screen">
+              <img
+                class="release-animation"
+                src="/animations/release-butterflies.gif"
+                alt=""
+                draggable="false"
+              />
+            </div>
+          {:else}
+            <h1>Collected Joy</h1>
+            <p class="subtitle collection-subtitle">Release when you reach 21!</p>
 
-          <button
-            class="collection-button"
-            type="button"
-            on:click={openCollection}
-          >
-            See Your Joy Collection
-          </button>
-        {:else}
-          <div class="collection-screen">
-            {#if isReleasing}
-              <div class="release-screen">
+            <div class="jar-block">
+              <div class="jar-area">
                 <img
-                  class="release-animation"
-                  src="/animations/release-butterflies.gif"
-                  alt=""
+                  class="jar-image"
+                  src={getJarImage()}
+                  alt="Collected joy jar"
                   draggable="false"
                 />
               </div>
-            {:else}
-              <h1>Collected Joy</h1>
-              <p class="subtitle collection-subtitle">Release when you reach 21!</p>
 
-              <div class="jar-block">
-                <div class="jar-area">
-                  <img
-                    class="jar-image"
-                    src={getJarImage()}
-                    alt="Collected joy jar"
-                    draggable="false"
-                  />
-                </div>
-
-                <p class="joy-count">
-                  {#if butterflyCount === 1}
-                    You have collected 1 joyful moment
-                  {:else if butterflyCount > 1}
-                    You have collected {butterflyCount} joyful moments
-                  {/if}
-                </p>
-              </div>
-
-              <div class="collection-buttons">
-                {#if butterflyCount >= 21}
-                  <button
-                    class="fly-button"
-                    type="button"
-                    on:click={letThemFly}
-                  >
-                    Let Them Fly!
-                  </button>
+              <p class="joy-count">
+                {#if butterflyCount === 1}
+                  You have collected 1 joyful moment
+                {:else if butterflyCount > 1}
+                  You have collected {butterflyCount} joyful moments
                 {/if}
+              </p>
+            </div>
 
+            <div class="collection-buttons">
+              {#if butterflyCount >= 21}
                 <button
-                  class="collection-button"
+                  class="fly-button"
                   type="button"
-                  on:click={() => (screen = 'garden')}
+                  on:click={letThemFly}
                 >
-                  Collect More Joy
+                  Let Them Fly!
                 </button>
-              </div>
-            {/if}
-          </div>
-        {/if}
-      </div>
+              {/if}
+
+              <button
+                class="collection-button"
+                type="button"
+                on:click={() => (screen = 'garden')}
+              >
+                Collect More Joy
+              </button>
+            </div>
+          {/if}
+        </div>
+      {/if}
     </div>
   </div>
 {/if}
@@ -549,7 +541,6 @@
   }
 
   .auth-form button,
-  .logout-button,
   .collection-button,
   .fly-button {
     border: none;
@@ -569,25 +560,6 @@
     padding: 0 16px;
     background: #62c7cf;
     box-shadow: 0 8px 20px rgba(98, 199, 207, 0.25);
-  }
-
-  .app-shell {
-    min-height: 100vh;
-    width: 100%;
-    background: #000;
-  }
-
-  .topbar {
-    width: 100%;
-    display: flex;
-    justify-content: flex-end;
-    padding: 16px 16px 0;
-  }
-
-  .logout-button {
-    min-height: 40px;
-    padding: 0 14px;
-    background: rgba(255, 255, 255, 0.12);
   }
 
   .page {
@@ -667,19 +639,17 @@
   }
 
   .category:focus,
-  .category:focus-visible,
-  .category:active,
-  .logout-button:focus,
-  .logout-button:focus-visible,
-  .auth-form button:focus,
-  .auth-form button:focus-visible,
-  .collection-button:focus,
-  .collection-button:focus-visible,
-  .fly-button:focus,
-  .fly-button:focus-visible {
-    outline: none;
-    box-shadow: none;
-  }
+.category:focus-visible,
+.category:active,
+.auth-form button:focus,
+.auth-form button:focus-visible,
+.collection-button:focus,
+.collection-button:focus-visible,
+.fly-button:focus,
+.fly-button:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
 
   .visual-slot {
     width: 78px;
@@ -738,18 +708,16 @@
   }
 
   .auth-form button:hover,
-  .collection-button:hover,
-  .fly-button:hover,
-  .logout-button:hover {
-    filter: brightness(1.03);
-  }
+.collection-button:hover,
+.fly-button:hover {
+  filter: brightness(1.03);
+}
 
-  .collection-button:active,
-  .fly-button:active,
-  .auth-form button:active,
-  .logout-button:active {
-    transform: translateY(1px);
-  }
+.collection-button:active,
+.fly-button:active,
+.auth-form button:active {
+  transform: translateY(1px);
+}
 
   .collection-screen {
     width: 100%;
