@@ -353,7 +353,7 @@
         />
 
         <button on:click={login}>
-          Send Login Link
+          Send me a login link
         </button>
       </div>
     </div>
