@@ -889,13 +889,21 @@
 
           <div class="settings-divider"></div>
 
-          <button
-            class="settings-logout"
-            type="button"
-            on:click={logout}
-          >
-            {t('logout')}
-          </button>
+<div class="settings-section legal-section">
+  <p class="legal-brand">Joyering™</p>
+  <p class="legal-copy">© 2026 Ulrika Torquato</p>
+  <p class="legal-copy">All rights reserved.</p>
+</div>
+
+<div class="settings-divider"></div>
+
+<button
+  class="settings-logout"
+  type="button"
+  on:click={logout}
+>
+  {t('logout')}
+</button>
         </div>
       </div>
     {/if}
@@ -1355,6 +1363,25 @@
     padding: 24px;
     z-index: 1100;
   }
+
+  .legal-section {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.legal-brand {
+  margin: 0 0 6px;
+  font-size: 0.98rem;
+  font-weight: 700;
+  opacity: 0.95;
+}
+
+.legal-copy {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  opacity: 0.72;
+}
 
   .settings-modal {
     width: 100%;
