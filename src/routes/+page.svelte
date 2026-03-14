@@ -22,6 +22,7 @@ let screen = 'garden'
 let isReleasing = false
 let isSettingsOpen = false
 let theme = 'dark'
+let language = 'en'
   
   /** @type {string | null} */
   let currentAnimatingCategory = null
@@ -58,6 +59,96 @@ let theme = 'dark'
     '/sounds/re2.mp3',
     '/sounds/si.mp3'
   ]
+
+  /** @type {Record<string, Record<string, string>>} */
+const translations = {
+  en: {
+    appName: 'Joyering',
+    loading: 'Loading...',
+    loginSubtitle: 'Catch your joyful moments, one butterfly at a time.',
+    emailPlaceholder: 'Your email',
+    sendLoginLink: 'Send me a login link',
+
+    gardenTitle: 'The Joy Garden',
+    gardenSubtitle: 'Catch a joyful moment!',
+    seeCollection: 'See Your Joy Collection',
+
+    collectionTitle: 'Collected Joy',
+    collectionSubtitle: 'Release when you reach 21!',
+    letThemFly: 'Let Them Fly!',
+    collectMoreJoy: 'Collect More Joy',
+
+    settingsTitle: 'Settings',
+    themeLabel: 'Theme',
+    languageLabel: 'Language',
+    logout: 'Log out',
+
+    dark: 'Dark',
+    light: 'Light',
+
+    english: 'English',
+    italian: 'Italiano',
+    portuguese: 'Português'
+  },
+
+  it: {
+    appName: 'Joyering',
+    loading: 'Caricamento...',
+    loginSubtitle: 'Raccogli i tuoi momenti di gioia, una farfalla alla volta.',
+    emailPlaceholder: 'La tua email',
+    sendLoginLink: 'Mandami un link di accesso',
+
+    gardenTitle: 'Il Giardino della Gioia',
+    gardenSubtitle: 'Cattura un momento di gioia!',
+    seeCollection: 'Guarda la tua collezione di gioia',
+
+    collectionTitle: 'Gioia raccolta',
+    collectionSubtitle: 'Lasciale volare quando arrivi a 21!',
+    letThemFly: 'Lasciale volare!',
+    collectMoreJoy: 'Raccogli altra gioia',
+
+    settingsTitle: 'Impostazioni',
+    themeLabel: 'Tema',
+    languageLabel: 'Lingua',
+    logout: 'Esci',
+
+    dark: 'Scuro',
+    light: 'Chiaro',
+
+    english: 'English',
+    italian: 'Italiano',
+    portuguese: 'Português'
+  },
+
+  pt: {
+    appName: 'Joyering',
+    loading: 'Carregando...',
+    loginSubtitle: 'Colete seus momentos de alegria, uma borboleta de cada vez.',
+    emailPlaceholder: 'Seu email',
+    sendLoginLink: 'Envie-me um link de acesso',
+
+    gardenTitle: 'O Jardim da Alegria',
+    gardenSubtitle: 'Capture um momento de alegria!',
+    seeCollection: 'Veja sua coleção de alegria',
+
+    collectionTitle: 'Alegria coletada',
+    collectionSubtitle: 'Solte quando chegar a 21!',
+    letThemFly: 'Deixe voar!',
+    collectMoreJoy: 'Colete mais alegria',
+
+    settingsTitle: 'Configurações',
+    themeLabel: 'Tema',
+    languageLabel: 'Idioma',
+    logout: 'Sair',
+
+    dark: 'Escuro',
+    light: 'Claro',
+
+    english: 'English',
+    italian: 'Italiano',
+    portuguese: 'Português'
+  }
+}
 
   async function login() {
     const { error } = await supabase.auth.signInWithOtp({
@@ -99,6 +190,37 @@ let theme = 'dark'
  function setTheme(newTheme) {
   theme = newTheme
   localStorage.setItem('joyering-theme', newTheme)
+}
+
+function loadSavedLanguage() {
+  const savedLanguage = localStorage.getItem('joyering-language')
+
+  if (savedLanguage === 'en' || savedLanguage === 'it' || savedLanguage === 'pt') {
+    language = savedLanguage
+  }
+}
+
+/**
+ * @param {'en' | 'it' | 'pt'} newLanguage
+ */
+function setLanguage(newLanguage) {
+  language = newLanguage
+  localStorage.setItem('joyering-language', newLanguage)
+}
+
+/**
+ * @param {string} key
+ */
+ function tr(key) {
+  if (translations[language] && translations[language][key]) {
+    return translations[language][key]
+  }
+
+  if (translations.en[key]) {
+    return translations.en[key]
+  }
+
+  return key
 }
 
   /**
@@ -228,6 +350,7 @@ let theme = 'dark'
 
   onMount(async () => {
   loadSavedTheme()
+  loadSavedLanguage()
   setupTapSounds()
 
     preloadImages([
@@ -540,8 +663,36 @@ let theme = 'dark'
           </div>
 
           <div class="settings-section">
-            <p class="settings-label">Language</p>
-            <p class="settings-placeholder">Coming soon</p>
+            <p class="settings-label">{tr('languageLabel')}</p>
+          
+            <div class="settings-choice-row">
+              <button
+                class:active-choice={language === 'en'}
+                class="settings-choice"
+                type="button"
+                on:click={() => setLanguage('en')}
+              >
+                {tr('english')}
+              </button>
+          
+              <button
+                class:active-choice={language === 'it'}
+                class="settings-choice"
+                type="button"
+                on:click={() => setLanguage('it')}
+              >
+                {tr('italian')}
+              </button>
+          
+              <button
+                class:active-choice={language === 'pt'}
+                class="settings-choice"
+                type="button"
+                on:click={() => setLanguage('pt')}
+              >
+                {tr('portuguese')}
+              </button>
+            </div>
           </div>
 
           <div class="settings-divider"></div>
