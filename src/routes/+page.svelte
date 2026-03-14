@@ -29,9 +29,6 @@
   let isReleasing = false
 
   // SETTINGS
-  // "Settings" is the small panel opened by the gear icon.
-  // It is where the user can change app preferences such as
-  // theme or log out.
   let isSettingsOpen = false
 
   // Theme preference for the app
@@ -123,12 +120,61 @@
     localStorage.setItem('joyering-theme', newTheme)
   }
 
-  async function installJoyering() {
-    if (!installPrompt) return
+  function isStandaloneMode() {
+    if (typeof window === 'undefined') return false
 
-    await installPrompt.prompt()
-    installPrompt = null
-    canInstall = false
+    const displayModeStandalone = window.matchMedia('(display-mode: standalone)').matches
+    const iosStandalone =
+      'standalone' in window.navigator && window.navigator.standalone === true
+
+    return displayModeStandalone || iosStandalone
+  }
+
+  function showManualInstallHelp() {
+    const ua = window.navigator.userAgent.toLowerCase()
+    const isIOS = /iphone|ipad|ipod/.test(ua)
+    const isAndroid = /android/.test(ua)
+    const isChrome =
+      /chrome/.test(ua) && !/edg|opr|opera|samsungbrowser/.test(ua)
+
+    if (isIOS) {
+      alert('To save Joyering on your phone, tap Share, then tap "Add to Home Screen".')
+      return
+    }
+
+    if (isAndroid && isChrome) {
+      alert('To save Joyering on your phone, open the browser menu and choose "Install app" or "Add to Home screen".')
+      return
+    }
+
+    alert('To save Joyering on your phone, open your browser menu and look for an install option.')
+  }
+
+  async function installJoyering() {
+    if (isStandaloneMode()) {
+      showInstallCard = false
+      return
+    }
+
+    if (installPrompt) {
+      try {
+        await installPrompt.prompt()
+        const choiceResult = await installPrompt.userChoice
+
+        installPrompt = null
+        canInstall = false
+
+        if (choiceResult?.outcome === 'accepted') {
+          showInstallCard = false
+        }
+      } catch (error) {
+        console.error('Install prompt error:', error)
+      }
+
+      return
+    }
+
+    showManualInstallHelp()
   }
 
   /**
@@ -256,7 +302,7 @@
     isLoadingSession = false
   }
 
-  onMount(async () => {
+  onMount(() => {
     loadSavedTheme()
     setupTapSounds()
 
@@ -280,18 +326,31 @@
       img.src = `/butterflies/pulse${i}.gif`
     }
 
-    const handleBeforeInstallPrompt = (event) => {
-      event.preventDefault()
-      installPrompt = event
+    if (isStandaloneMode()) {
+      showInstallCard = false
+    }
+
+    /** @param {any} e */
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault()
+      installPrompt = e
       canInstall = true
     }
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+    const handleAppInstalled = () => {
+      installPrompt = null
+      canInstall = false
+      showInstallCard = false
+    }
 
-    await restoreSessionAndState()
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+    window.addEventListener('appinstalled', handleAppInstalled)
+
+    restoreSessionAndState()
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+      window.removeEventListener('appinstalled', handleAppInstalled)
     }
   })
 
@@ -449,16 +508,14 @@
               </p>
 
               <div class="install-buttons">
-                {#if canInstall}
-                  <button
-                    class="install-primary"
-                    type="button"
-                    on:click={installJoyering}
-                  >
-                    Install Joyering
-                  </button>
-                {/if}
-
+                <button
+                  class="install-primary"
+                  type="button"
+                  on:click={installJoyering}
+                >
+                  Install Joyering
+                </button>
+              
                 <button
                   class="install-secondary"
                   type="button"
