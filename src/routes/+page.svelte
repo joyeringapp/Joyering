@@ -20,8 +20,12 @@
   let butterflyCount = 0
   let screen = 'garden'
   let isReleasing = false
-  let isSettingsOpen = false
-
+  // SETTINGS
+// "settings" is the small panel opened by the gear icon.
+// It is where the user can change app preferences such as
+// theme (light/dark), language, or log out of the app.
+let isSettingsOpen = false
+  
   /** @type {string | null} */
   let currentAnimatingCategory = null
 
@@ -476,14 +480,14 @@
     </div>
 
     {#if isSettingsOpen}
-      <div
-        class="settings-overlay"
-        on:click={() => (isSettingsOpen = false)}
-      >
-        <div
-          class="settings-modal"
-          on:click|stopPropagation
-        >
+  <div
+    class="settings-overlay"
+    on:click={() => (isSettingsOpen = false)}
+  >
+    <div
+      class="settings-modal"
+      on:click|stopPropagation
+    >
           <div class="settings-header">
             <h2>Settings</h2>
 
