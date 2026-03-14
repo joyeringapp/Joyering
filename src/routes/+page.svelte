@@ -151,10 +151,11 @@
   }
 
   async function installJoyering() {
-    if (isStandaloneMode()) {
-      showInstallCard = false
-      return
-    }
+    const dismissed = localStorage.getItem('joyering-install-dismissed')
+
+if (isStandaloneMode() || dismissed === 'true') {
+  showInstallCard = false
+}
 
     if (installPrompt) {
       try {
@@ -517,12 +518,16 @@
                 </button>
               
                 <button
-                  class="install-secondary"
-                  type="button"
-                  on:click={() => (showInstallCard = false)}
-                >
-                  Not now
-                </button>
+  class="install-secondary"
+  type="button"
+  on:click={() => {
+    showInstallCard = false
+    localStorage.setItem('joyering-install-dismissed', 'true')
+  }}
+>
+  Not now
+</button>
+
               </div>
             </div>
           {/if}
