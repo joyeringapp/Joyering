@@ -150,21 +150,23 @@ const translations = {
   }
 }
 
-  async function login() {
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: window.location.origin
-      }
-    })
+async function login() {
+  console.log('EMAIL BEING SENT:', email)
 
-    if (error) {
-      alert(error.message)
-    } else {
-      alert('Check your email for the login link!')
-      email = ''
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: {
+      emailRedirectTo: window.location.origin
     }
+  })
+
+  if (error) {
+    alert(error.message)
+  } else {
+    alert('Check your email for the login link!')
+    email = ''
   }
+}
 
   async function logout() {
     const { error } = await supabase.auth.signOut()
@@ -517,7 +519,7 @@ function setLanguage(newLanguage) {
     <div class="page">
       <div class="wrapper">
         {#if screen === 'garden'}
-          <h1>The Joy Garden</h1>
+         <h1>{tr('gardenTitle')}</h1>
           <p class="subtitle garden-subtitle">Catch a joyful moment!</p>
 
           <div class="grid">
