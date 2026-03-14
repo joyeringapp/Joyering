@@ -37,6 +37,8 @@
   // Theme preference for the app
   let theme = 'dark'
 
+  let showInstallCard = true
+
   /** @type {string | null} */
   let currentAnimatingCategory = null
 
@@ -397,43 +399,40 @@
     </div>
   </div>
 
-{:else}
+  {:else}
   <div class={`app-shell theme-${theme}`}>
-    {#if screen === 'garden'}
-      <button
-        class="settings-button"
-        type="button"
-        on:click={() => (isSettingsOpen = true)}
-        aria-label="Open settings"
-      >
-        ⚙
-      </button>
-    {/if}
-
     <div class="page">
       <div class="wrapper">
+
         {#if screen === 'garden'}
 
-  <div class="install-card">
-    <p class="install-title">Keep Joyering close</p>
+          {#if showInstallCard}
+            <div class="install-card">
+              <p class="install-title">Keep Joyering close</p>
 
-    <p class="install-text">
-      Install Joyering on your phone so it’s always there when a joyful moment appears.
-    </p>
+              <p class="install-text">
+                Install Joyering on your phone so it’s always there when a joyful moment appears.
+              </p>
 
-    <div class="install-buttons">
-      <button class="install-primary">
-        Install Joyering
-      </button>
+              <div class="install-buttons">
+                <button class="install-primary">
+                  Install Joyering
+                </button>
 
-      <button class="install-secondary">
-        Not now
-      </button>
-    </div>
-  </div>
+                <button
+                  class="install-secondary"
+                  type="button"
+                  on:click={() => (showInstallCard = false)}
+                >
+                  Not now
+                </button>
+              </div>
+            </div>
+          {/if}
 
-  <h1>The Joy Garden</h1>
-  <p class="subtitle garden-subtitle">Catch a joyful moment!</p>
+          <h1>The Joy Garden</h1>
+          <p class="subtitle garden-subtitle">Catch a joyful moment!</p>
+
           <div class="grid">
             {#each categories as category}
               <button
@@ -471,8 +470,11 @@
           >
             See Your Joy Collection
           </button>
+
         {:else}
+
           <div class="collection-screen">
+
             {#if isReleasing}
               <div class="release-screen">
                 <img
@@ -482,7 +484,9 @@
                   draggable="false"
                 />
               </div>
+
             {:else}
+
               <h1>Collected Joy</h1>
               <p class="subtitle collection-subtitle">Release when you reach 21!</p>
 
@@ -506,6 +510,7 @@
               </div>
 
               <div class="collection-buttons">
+
                 {#if butterflyCount >= 21}
                   <button
                     class="fly-button"
@@ -523,10 +528,15 @@
                 >
                   Collect More Joy
                 </button>
+
               </div>
+
             {/if}
+
           </div>
+
         {/if}
+
       </div>
     </div>
 
@@ -590,9 +600,11 @@
           >
             Log out
           </button>
+
         </div>
       </div>
     {/if}
+
   </div>
 {/if}
 
