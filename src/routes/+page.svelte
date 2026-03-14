@@ -17,18 +17,25 @@
   /** @type {HTMLAudioElement | null} */
   let releaseSound = null
 
+  // Total butterflies the user has collected
   let butterflyCount = 0
-let screen = 'garden'
-let isReleasing = false
-let isSettingsOpen = false
-let theme = 'dark'
-let language = 'en'
 
-/** @type {any} */
-let deferredInstallPrompt = null
-let canInstallApp = false
-let isInstalled = false
-let hideInstallBanner = false
+  // Which screen of the app is currently visible
+  // 'garden' = category screen
+  // 'collection' = jar screen
+  let screen = 'garden'
+
+  // True while the butterfly release animation is running
+  let isReleasing = false
+
+  // SETTINGS
+  // "Settings" is the small panel opened by the gear icon.
+  // It is where the user can change app preferences such as
+  // theme or log out.
+  let isSettingsOpen = false
+
+  // Theme preference for the app
+  let theme = 'dark'
 
   /** @type {string | null} */
   let currentAnimatingCategory = null
@@ -66,145 +73,21 @@ let hideInstallBanner = false
     '/sounds/si.mp3'
   ]
 
-  /** @type {Record<string, Record<string, string>>} */
-const translations = {
-  en: {
-    appName: 'Joyering',
-    loading: 'Loading...',
-    loginSubtitle: 'Catch your joyful moments, one butterfly at a time.',
-    emailPlaceholder: 'Your email',
-    sendLoginLink: 'Send me a login link',
+  async function login() {
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: window.location.origin
+      }
+    })
 
-    gardenTitle: 'The Joy Garden',
-    gardenSubtitle: 'Catch a joyful moment!',
-    seeCollection: 'See Your Joy Collection',
-
-    collectionTitle: 'Collected Joy',
-    collectionSubtitle: 'Release when you reach 21!',
-    letThemFly: 'Let Them Fly!',
-    collectMoreJoy: 'Collect More Joy',
-
-    settingsTitle: 'Settings',
-    themeLabel: 'Theme',
-    languageLabel: 'Language',
-    logout: 'Log out',
-
-    dark: 'Dark',
-    light: 'Light',
-
-    english: 'English',
-    italian: 'Italiano',
-    portuguese: 'Português'
-  },
-
-  it: {
-    appName: 'Joyering',
-    loading: 'Caricamento...',
-    loginSubtitle: 'Raccogli i tuoi momenti di gioia, una farfalla alla volta.',
-    emailPlaceholder: 'La tua email',
-    sendLoginLink: 'Mandami un link di accesso',
-
-    gardenTitle: 'Il Giardino della Gioia',
-    gardenSubtitle: 'Cattura un momento di gioia!',
-    seeCollection: 'Guarda la tua collezione di gioia',
-
-    collectionTitle: 'Gioia raccolta',
-    collectionSubtitle: 'Lasciale volare quando arrivi a 21!',
-    letThemFly: 'Lasciale volare!',
-    collectMoreJoy: 'Raccogli altra gioia',
-
-    settingsTitle: 'Impostazioni',
-    themeLabel: 'Tema',
-    languageLabel: 'Lingua',
-    logout: 'Esci',
-
-    dark: 'Scuro',
-    light: 'Chiaro',
-
-    english: 'English',
-    italian: 'Italiano',
-    portuguese: 'Português'
-  },
-
-  pt: {
-    appName: 'Joyering',
-    loading: 'Carregando...',
-    loginSubtitle: 'Colete seus momentos de alegria, uma borboleta de cada vez.',
-    emailPlaceholder: 'Seu email',
-    sendLoginLink: 'Envie-me um link de acesso',
-
-    gardenTitle: 'O Jardim da Alegria',
-    gardenSubtitle: 'Capture um momento de alegria!',
-    seeCollection: 'Veja sua coleção de alegria',
-
-    collectionTitle: 'Alegria coletada',
-    collectionSubtitle: 'Solte quando chegar a 21!',
-    letThemFly: 'Deixe voar!',
-    collectMoreJoy: 'Colete mais alegria',
-
-    settingsTitle: 'Configurações',
-    themeLabel: 'Tema',
-    languageLabel: 'Idioma',
-    logout: 'Sair',
-
-    dark: 'Escuro',
-    light: 'Claro',
-
-    english: 'English',
-    italian: 'Italiano',
-    portuguese: 'Português'
-  }
-}
-
-function loadInstallBannerPreference() {
-  const saved = localStorage.getItem('joyering-hide-install-banner')
-  hideInstallBanner = saved === 'true'
-}
-
-function dismissInstallBanner() {
-  hideInstallBanner = true
-  localStorage.setItem('joyering-hide-install-banner', 'true')
-}
-
-function checkIfInstalled() {
-  isInstalled =
-    window.matchMedia('(display-mode: standalone)').matches ||
-    window.navigator.standalone === true
-}
-
-async function installApp() {
-  if (!deferredInstallPrompt) return
-
-  deferredInstallPrompt.prompt()
-
-  const choiceResult = await deferredInstallPrompt.userChoice
-
-  if (choiceResult.outcome === 'accepted') {
-    hideInstallBanner = true
-    localStorage.setItem('joyering-hide-install-banner', 'true')
-  }
-
-  deferredInstallPrompt = null
-  canInstallApp = false
-}
-
-async function login() {
-  console.log('EMAIL BEING SENT:', email)
-
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: {
-      emailRedirectTo: window.location.origin
+    if (error) {
+      alert(error.message)
+    } else {
+      alert('Check your email for the login link!')
+      email = ''
     }
-  })
-
-  if (error) {
-    alert(error.message)
-  } else {
-    alert('Check your email for the login link!')
-    email = ''
   }
-}
 
   async function logout() {
     const { error } = await supabase.auth.signOut()
@@ -217,51 +100,20 @@ async function login() {
   }
 
   function loadSavedTheme() {
-  const savedTheme = localStorage.getItem('joyering-theme')
+    const savedTheme = localStorage.getItem('joyering-theme')
 
-  if (savedTheme === 'light' || savedTheme === 'dark') {
-    theme = savedTheme
-  }
-}
-
-/**
- * @param {'dark' | 'light'} newTheme
- */
- function setTheme(newTheme) {
-  theme = newTheme
-  localStorage.setItem('joyering-theme', newTheme)
-}
-
-function loadSavedLanguage() {
-  const savedLanguage = localStorage.getItem('joyering-language')
-
-  if (savedLanguage === 'en' || savedLanguage === 'it' || savedLanguage === 'pt') {
-    language = savedLanguage
-  }
-}
-
-/**
- * @param {'en' | 'it' | 'pt'} newLanguage
- */
-function setLanguage(newLanguage) {
-  language = newLanguage
-  localStorage.setItem('joyering-language', newLanguage)
-}
-
-/**
- * @param {string} key
- */
- function tr(key) {
-  if (translations[language] && translations[language][key]) {
-    return translations[language][key]
+    if (savedTheme === 'light' || savedTheme === 'dark') {
+      theme = savedTheme
+    }
   }
 
-  if (translations.en[key]) {
-    return translations.en[key]
+  /**
+   * @param {'dark' | 'light'} newTheme
+   */
+  function setTheme(newTheme) {
+    theme = newTheme
+    localStorage.setItem('joyering-theme', newTheme)
   }
-
-  return key
-}
 
   /**
    * @param {string[]} paths
@@ -389,11 +241,8 @@ function setLanguage(newLanguage) {
   }
 
   onMount(async () => {
-  loadSavedTheme()
-  loadSavedLanguage()
-  loadInstallBannerPreference()
-  checkIfInstalled()
-  setupTapSounds()
+    loadSavedTheme()
+    setupTapSounds()
 
     preloadImages([
       '/jars/jar-empty.gif',
@@ -415,30 +264,8 @@ function setLanguage(newLanguage) {
       img.src = `/butterflies/pulse${i}.gif`
     }
 
-    const handleBeforeInstallPrompt = (event: any) => {
-    event.preventDefault()
-    deferredInstallPrompt = event
-    canInstallApp = true
-  }
-
-  const handleAppInstalled = () => {
-    isInstalled = true
-    canInstallApp = false
-    deferredInstallPrompt = null
-    hideInstallBanner = true
-    localStorage.setItem('joyering-hide-install-banner', 'true')
-  }
-
-  window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
-  window.addEventListener('appinstalled', handleAppInstalled)
-
     await restoreSessionAndState()
   })
-
-  return () => {
-    window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
-    window.removeEventListener('appinstalled', handleAppInstalled)
-  }
 
   /**
    * @param {{ name: string; icon: string; key: string }} category
@@ -566,67 +393,24 @@ function setLanguage(newLanguage) {
   </div>
 
 {:else}
-<div class={`app-shell theme-${theme}`}>
+  <div class={`app-shell theme-${theme}`}>
     {#if screen === 'garden'}
-  <button
-    class="settings-button"
-    type="button"
-    on:click={() => (isSettingsOpen = true)}
-    aria-label="Open settings"
-  >
-    ⚙
-  </button>
-{/if}
+      <button
+        class="settings-button"
+        type="button"
+        on:click={() => (isSettingsOpen = true)}
+        aria-label="Open settings"
+      >
+        ⚙
+      </button>
+    {/if}
 
     <div class="page">
       <div class="wrapper">
         {#if screen === 'garden'}
-  {#if !isInstalled && !hideInstallBanner}
-    <div class="install-banner">
-      <p class="install-banner-title">Keep Joyering close</p>
+          <h1>The Joy Garden</h1>
+          <p class="subtitle garden-subtitle">Catch a joyful moment!</p>
 
-      {#if canInstallApp}
-        <p class="install-banner-text">
-          Add Joyering to your home screen so it’s always there when a joyful moment appears.
-        </p>
-
-        <div class="install-banner-buttons">
-          <button
-            class="install-banner-primary"
-            type="button"
-            on:click={installApp}
-          >
-            Install Joyering
-          </button>
-
-          <button
-            class="install-banner-secondary"
-            type="button"
-            on:click={dismissInstallBanner}
-          >
-            Not now
-          </button>
-        </div>
-      {:else}
-        <p class="install-banner-text">
-          Add Joyering to your home screen so it’s always there when a joyful moment appears.
-        </p>
-
-        <div class="install-banner-buttons">
-          <button
-            class="install-banner-secondary"
-            type="button"
-            on:click={dismissInstallBanner}
-          >
-            Not now
-          </button>
-        </div>
-      {/if}
-    </div>
-  {/if}
-
-  <h1>{tr('gardenTitle')}</h1>
-  <p class="subtitle garden-subtitle">{tr('gardenSubtitle')}</p>
           <div class="grid">
             {#each categories as category}
               <button
@@ -724,14 +508,14 @@ function setLanguage(newLanguage) {
     </div>
 
     {#if isSettingsOpen}
-  <div
-    class="settings-overlay"
-    on:click={() => (isSettingsOpen = false)}
-  >
-    <div
-      class="settings-modal"
-      on:click|stopPropagation
-    >
+      <div
+        class="settings-overlay"
+        on:click={() => (isSettingsOpen = false)}
+      >
+        <div
+          class="settings-modal"
+          on:click|stopPropagation
+        >
           <div class="settings-header">
             <h2>Settings</h2>
 
@@ -747,7 +531,7 @@ function setLanguage(newLanguage) {
 
           <div class="settings-section">
             <p class="settings-label">Theme</p>
-          
+
             <div class="settings-choice-row">
               <button
                 class:active-choice={theme === 'dark'}
@@ -757,7 +541,7 @@ function setLanguage(newLanguage) {
               >
                 Dark
               </button>
-          
+
               <button
                 class:active-choice={theme === 'light'}
                 class="settings-choice"
@@ -770,36 +554,8 @@ function setLanguage(newLanguage) {
           </div>
 
           <div class="settings-section">
-            <p class="settings-label">{tr('languageLabel')}</p>
-          
-            <div class="settings-choice-row">
-              <button
-                class:active-choice={language === 'en'}
-                class="settings-choice"
-                type="button"
-                on:click={() => setLanguage('en')}
-              >
-                {tr('english')}
-              </button>
-          
-              <button
-                class:active-choice={language === 'it'}
-                class="settings-choice"
-                type="button"
-                on:click={() => setLanguage('it')}
-              >
-                {tr('italian')}
-              </button>
-          
-              <button
-                class:active-choice={language === 'pt'}
-                class="settings-choice"
-                type="button"
-                on:click={() => setLanguage('pt')}
-              >
-                {tr('portuguese')}
-              </button>
-            </div>
+            <p class="settings-label">Language</p>
+            <p class="settings-placeholder">Coming soon</p>
           </div>
 
           <div class="settings-divider"></div>
@@ -906,57 +662,57 @@ function setLanguage(newLanguage) {
   }
 
   .app-shell.theme-light {
-  background: #f7f6f1;
-  color: #151515;
-}
+    background: #f7f6f1;
+    color: #151515;
+  }
 
-.app-shell.theme-light .page,
-.app-shell.theme-light .collection-screen,
-.app-shell.theme-light .wrapper,
-.app-shell.theme-light .jar-block {
-  background: transparent;
-  color: #151515;
-}
+  .app-shell.theme-light .page,
+  .app-shell.theme-light .collection-screen,
+  .app-shell.theme-light .wrapper,
+  .app-shell.theme-light .jar-block {
+    background: transparent;
+    color: #151515;
+  }
 
-.app-shell.theme-light h1,
-.app-shell.theme-light .subtitle,
-.app-shell.theme-light .category-label,
-.app-shell.theme-light .joy-count {
-  color: #151515;
-}
+  .app-shell.theme-light h1,
+  .app-shell.theme-light .subtitle,
+  .app-shell.theme-light .category-label,
+  .app-shell.theme-light .joy-count {
+    color: #151515;
+  }
 
-.app-shell.theme-light .settings-button {
-  background: rgba(0, 0, 0, 0.08);
-  color: #151515;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-}
+  .app-shell.theme-light .settings-button {
+    background: rgba(0, 0, 0, 0.08);
+    color: #151515;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  }
 
-.app-shell.theme-light .settings-modal {
-  background: rgba(255, 255, 255, 0.96);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  color: #151515;
-}
+  .app-shell.theme-light .settings-modal {
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    color: #151515;
+  }
 
-.app-shell.theme-light .settings-header h2,
-.app-shell.theme-light .settings-label,
-.app-shell.theme-light .settings-placeholder,
-.app-shell.theme-light .settings-close {
-  color: #151515;
-}
+  .app-shell.theme-light .settings-header h2,
+  .app-shell.theme-light .settings-label,
+  .app-shell.theme-light .settings-placeholder,
+  .app-shell.theme-light .settings-close {
+    color: #151515;
+  }
 
-.app-shell.theme-light .settings-divider {
-  background: rgba(0, 0, 0, 0.08);
-}
+  .app-shell.theme-light .settings-divider {
+    background: rgba(0, 0, 0, 0.08);
+  }
 
-.app-shell.theme-light .settings-choice {
-  background: rgba(0, 0, 0, 0.08);
-  color: #151515;
-}
+  .app-shell.theme-light .settings-choice {
+    background: rgba(0, 0, 0, 0.08);
+    color: #151515;
+  }
 
-.app-shell.theme-light .settings-logout {
-  background: rgba(0, 0, 0, 0.08);
-  color: #151515;
-}
+  .app-shell.theme-light .settings-logout {
+    background: rgba(0, 0, 0, 0.08);
+    color: #151515;
+  }
 
   .auth-form button,
   .collection-button,
@@ -981,16 +737,16 @@ function setLanguage(newLanguage) {
   }
 
   .page {
-  min-height: 100vh;
-  width: 100%;
-  background: transparent;
-  display: flex;
-  justify-content: center;
-  padding:
-    env(safe-area-inset-top)
-    20px
-    calc(36px + env(safe-area-inset-bottom));
-}
+    min-height: 100vh;
+    width: 100%;
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    padding:
+      env(safe-area-inset-top)
+      20px
+      calc(36px + env(safe-area-inset-bottom));
+  }
 
   .wrapper {
     width: 100%;
@@ -1235,7 +991,9 @@ function setLanguage(newLanguage) {
   .settings-close:focus,
   .settings-close:focus-visible,
   .settings-logout:focus,
-  .settings-logout:focus-visible {
+  .settings-logout:focus-visible,
+  .settings-choice:focus,
+  .settings-choice:focus-visible {
     outline: none;
     box-shadow: none;
   }
@@ -1291,31 +1049,6 @@ function setLanguage(newLanguage) {
     margin-bottom: 18px;
   }
 
-  .settings-choice-row {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.settings-choice {
-  min-height: 40px;
-  padding: 0 16px;
-  border: none;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-  font-size: 0.95rem;
-  font-weight: 700;
-  cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-}
-
-.active-choice {
-  background: #62c7cf;
-  color: #000;
-}
-
   .settings-label {
     margin: 0 0 6px;
     font-size: 0.98rem;
@@ -1326,6 +1059,31 @@ function setLanguage(newLanguage) {
     margin: 0;
     font-size: 0.96rem;
     opacity: 0.8;
+  }
+
+  .settings-choice-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .settings-choice {
+    min-height: 40px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  .active-choice {
+    background: #62c7cf;
+    color: #000;
   }
 
   .settings-divider {
@@ -1348,76 +1106,6 @@ function setLanguage(newLanguage) {
     appearance: none;
     -webkit-appearance: none;
   }
-
-  .install-banner {
-  width: 100%;
-  max-width: 520px;
-  margin: 0 auto 24px;
-  padding: 18px 18px 16px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  text-align: left;
-}
-
-.install-banner-title {
-  margin: 0 0 8px;
-  font-size: 1rem;
-  font-weight: 700;
-  color: #fff;
-}
-
-.install-banner-text {
-  margin: 0;
-  font-size: 0.96rem;
-  line-height: 1.45;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.install-banner-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 14px;
-}
-
-.install-banner-primary,
-.install-banner-secondary {
-  min-height: 42px;
-  padding: 0 16px;
-  border-radius: 999px;
-  border: none;
-  font-size: 0.95rem;
-  font-weight: 700;
-  cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-}
-
-.install-banner-primary {
-  background: #62c7cf;
-  color: #000;
-}
-
-.install-banner-secondary {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-}
-
-.app-shell.theme-light .install-banner {
-  background: rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.app-shell.theme-light .install-banner-title,
-.app-shell.theme-light .install-banner-text {
-  color: #151515;
-}
-
-.app-shell.theme-light .install-banner-secondary {
-  background: rgba(0, 0, 0, 0.08);
-  color: #151515;
-}
 
   @media (max-width: 640px) {
     h1 {
@@ -1449,16 +1137,16 @@ function setLanguage(newLanguage) {
     }
 
     .page {
-  min-height: 100vh;
-  width: 100%;
-  background: transparent;
-  display: flex;
-  justify-content: center;
-  padding:
-    env(safe-area-inset-top)
-    14px
-    calc(34px + env(safe-area-inset-bottom));
-}
+      min-height: 100vh;
+      width: 100%;
+      background: transparent;
+      display: flex;
+      justify-content: center;
+      padding:
+        env(safe-area-inset-top)
+        14px
+        calc(34px + env(safe-area-inset-bottom));
+    }
 
     .wrapper {
       max-width: 360px;
@@ -1545,18 +1233,4 @@ function setLanguage(newLanguage) {
       padding: 20px 18px 18px;
     }
   }
-  .install-banner {
-  max-width: 100%;
-  margin-bottom: 18px;
-  padding: 16px 16px 14px;
-}
-
-.install-banner-title {
-  font-size: 0.98rem;
-}
-
-.install-banner-text {
-  font-size: 0.92rem;
-}
-
 </style>
