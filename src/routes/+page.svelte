@@ -8,7 +8,7 @@
   /** @type {import('@supabase/supabase-js').User | null} */
   let user = null
 
-  /** @type {import('@supabase/supabase-js').Subscription | null} */
+  /** @type {{ unsubscribe: () => void } | null} */
   let authSubscription = null
 
   async function login() {
@@ -49,7 +49,7 @@
     { name: 'Surprise', icon: '/icons/surprise.png', key: 'surprise' },
     { name: 'Nature', icon: '/icons/nature.png', key: 'nature' },
     { name: 'Other', icon: '/icons/other.png', key: 'other' }
-  ];
+  ]
 
   const tapSoundPaths = [
     '/sounds/fa.mp3',
@@ -57,137 +57,160 @@
     '/sounds/re.mp3',
     '/sounds/re2.mp3',
     '/sounds/si.mp3'
-  ];
-
-  const STORAGE_KEY = 'joyering-butterfly-count';
+  ]
 
   /** @type {HTMLAudioElement[]} */
-  let tapSounds = [];
+  let tapSounds = []
 
   /** @type {HTMLAudioElement | null} */
-  let jarSound = null;
+  let jarSound = null
 
   /** @type {HTMLAudioElement | null} */
-  let releaseSound = null;
+  let releaseSound = null
 
-  let butterflyCount = 0;
-  let screen = 'garden';
-  let isReleasing = false;
+  let butterflyCount = 0
+  let screen = 'garden'
+  let isReleasing = false
 
   /** @type {string | null} */
-  let currentAnimatingCategory = null;
+  let currentAnimatingCategory = null
 
   /** @type {number | null} */
-  let currentPulseNumber = null;
+  let currentPulseNumber = null
 
   /** @type {ReturnType<typeof setTimeout> | null} */
-  let resetTimer = null;
+  let resetTimer = null
 
   /** @type {ReturnType<typeof setTimeout> | null} */
-  let releaseTimer = null;
+  let releaseTimer = null
 
   /**
    * @param {string[]} paths
    */
   function preloadImages(paths) {
     for (const p of paths) {
-      const img = new Image();
-      img.src = p;
+      const img = new Image()
+      img.src = p
     }
   }
 
   function setupTapSounds() {
     tapSounds = tapSoundPaths.map((path) => {
-      const audio = new Audio(path);
-      audio.preload = 'auto';
-      audio.volume = 0.35;
-      return audio;
-    });
+      const audio = new Audio(path)
+      audio.preload = 'auto'
+      audio.volume = 0.35
+      return audio
+    })
 
-    jarSound = new Audio('/sounds/jar.mp3');
-    jarSound.preload = 'auto';
-    jarSound.volume = 0.35;
+    jarSound = new Audio('/sounds/jar.mp3')
+    jarSound.preload = 'auto'
+    jarSound.volume = 0.35
 
-    releaseSound = new Audio('/sounds/release.mp3');
-    releaseSound.preload = 'auto';
-    releaseSound.volume = 0.45;
+    releaseSound = new Audio('/sounds/release.mp3')
+    releaseSound.preload = 'auto'
+    releaseSound.volume = 0.45
   }
 
   function playRandomTapSound() {
-    if (!tapSounds.length) return;
+    if (!tapSounds.length) return
 
-    const index = Math.floor(Math.random() * tapSounds.length);
-    const sound = /** @type {HTMLAudioElement} */ (tapSounds[index].cloneNode());
-    sound.volume = 0.35;
-    sound.play().catch(() => {});
+    const index = Math.floor(Math.random() * tapSounds.length)
+    const sound = /** @type {HTMLAudioElement} */ (tapSounds[index].cloneNode())
+    sound.volume = 0.35
+    sound.play().catch(() => {})
   }
 
-  function loadSavedButterflyCount() {
-    const saved = localStorage.getItem(STORAGE_KEY);
+  async function ensureJoyStateRow() {
+    if (!user) return
 
-    if (saved === null) return;
+    const { data, error } = await supabase
+      .from('joy_state')
+      .select('user_id, butterfly_count')
+      .eq('user_id', user.id)
+      .maybeSingle()
 
-    const parsed = Number(saved);
+    if (error) {
+      console.error('Error checking joy state:', error)
+      return
+    }
 
-    if (!Number.isNaN(parsed) && parsed >= 0) {
-      butterflyCount = parsed;
+    if (!data) {
+      const { error: insertError } = await supabase
+        .from('joy_state')
+        .insert({
+          user_id: user.id,
+          butterfly_count: 0
+        })
+
+      if (insertError) {
+        console.error('Error creating joy state:', insertError)
+      }
     }
   }
 
-  function saveButterflyCount() {
-    localStorage.setItem(STORAGE_KEY, String(butterflyCount));
-  }
-
   async function loadJoyState() {
-    if (!user) return;
+    if (!user) return
 
     const { data, error } = await supabase
       .from('joy_state')
       .select('butterfly_count')
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle()
 
-    if (error && error.code !== 'PGRST116') {
-      console.error('Error loading joy state:', error);
-      return;
+    if (error) {
+      console.error('Error loading joy state:', error)
+      return
     }
 
-    if (data) {
-      butterflyCount = data.butterfly_count;
-      saveButterflyCount();
-    } else {
-      const { error: insertError } = await supabase
-        .from('joy_state')
-        .insert({
-          user_id: user.id,
-          butterfly_count: butterflyCount
-        });
-
-      if (insertError) {
-        console.error('Error creating joy state:', insertError);
-      }
-    }
+    butterflyCount = data?.butterfly_count ?? 0
   }
 
   async function saveJoyState() {
-    if (!user) return;
+    if (!user) return
 
     const { error } = await supabase
       .from('joy_state')
-      .update({
-        butterfly_count: butterflyCount,
-        updated_at: new Date().toISOString()
-      })
-      .eq('user_id', user.id);
+      .upsert(
+        {
+          user_id: user.id,
+          butterfly_count: butterflyCount,
+          updated_at: new Date().toISOString()
+        },
+        { onConflict: 'user_id' }
+      )
 
     if (error) {
-      console.error('Error saving joy state:', error);
+      console.error('Error saving joy state:', error)
     }
   }
 
+  async function restoreSessionAndState() {
+    isLoadingSession = true
+
+    const { data, error } = await supabase.auth.getSession()
+
+    if (error) {
+      console.error('Error restoring session:', error)
+      user = null
+      butterflyCount = 0
+      isLoadingSession = false
+      return
+    }
+
+    user = data.session?.user ?? null
+
+    if (user) {
+      await ensureJoyStateRow()
+      await loadJoyState()
+    } else {
+      butterflyCount = 0
+    }
+
+    isLoadingSession = false
+  }
+
   onMount(async () => {
-    loadSavedButterflyCount();
-    setupTapSounds();
+    setupTapSounds()
 
     preloadImages([
       '/jars/jar-empty.gif',
@@ -202,112 +225,108 @@
       '/jars/jar-mid.gif',
       '/jars/jar-full.gif',
       '/animations/release-butterflies.gif'
-    ]);
+    ])
 
     for (let i = 1; i <= 10; i++) {
-      const img = new Image();
-      img.src = `/butterflies/pulse${i}.gif`;
+      const img = new Image()
+      img.src = `/butterflies/pulse${i}.gif`
     }
 
-    const { data } = await supabase.auth.getSession();
-    user = data.session?.user ?? null;
+    await restoreSessionAndState()
 
-    if (user) {
-      await loadJoyState();
-    }
-
-    isLoadingSession = false;
-
-    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      user = session?.user ?? null;
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      user = session?.user ?? null
 
       if (user) {
-        await loadJoyState();
+        loadJoyState()
+      } else {
+        butterflyCount = 0
+        screen = 'garden'
+        isReleasing = false
+        currentAnimatingCategory = null
+        currentPulseNumber = null
       }
 
-      isLoadingSession = false;
-    });
+      isLoadingSession = false
+    })
 
-    authSubscription = listener.subscription;
-  });
+    authSubscription = data.subscription
+  })
 
   /**
    * @param {{ name: string; icon: string; key: string }} category
    */
   function handleCategoryTap(category) {
-    if (isReleasing) return;
+    if (isReleasing || !user) return
 
-    playRandomTapSound();
+    playRandomTapSound()
 
-    butterflyCount += 1;
-    saveButterflyCount();
-    saveJoyState();
+    butterflyCount += 1
+    saveJoyState()
 
-    currentPulseNumber = ((butterflyCount - 1) % 10) + 1;
-    currentAnimatingCategory = category.key;
+    currentPulseNumber = ((butterflyCount - 1) % 10) + 1
+    currentAnimatingCategory = category.key
 
     if (resetTimer) {
-      clearTimeout(resetTimer);
+      clearTimeout(resetTimer)
     }
 
     resetTimer = setTimeout(() => {
-      currentAnimatingCategory = null;
-      currentPulseNumber = null;
-      resetTimer = null;
-    }, 1000);
+      currentAnimatingCategory = null
+      currentPulseNumber = null
+      resetTimer = null
+    }, 1000)
   }
 
   function getJarImage() {
-    if (butterflyCount === 0) return '/jars/jar-empty.gif';
-    if (butterflyCount === 1) return '/jars/jar-1.gif';
-    if (butterflyCount === 2) return '/jars/jar-2.gif';
-    if (butterflyCount === 3) return '/jars/jar-3.gif';
-    if (butterflyCount === 4) return '/jars/jar-4.gif';
-    if (butterflyCount === 5) return '/jars/jar-5.gif';
-    if (butterflyCount === 6) return '/jars/jar-6.gif';
-    if (butterflyCount === 7) return '/jars/jar-7.gif';
-    if (butterflyCount === 8) return '/jars/jar-8.gif';
-    if (butterflyCount <= 15) return '/jars/jar-mid.gif';
-    return '/jars/jar-full.gif';
+    if (butterflyCount === 0) return '/jars/jar-empty.gif'
+    if (butterflyCount === 1) return '/jars/jar-1.gif'
+    if (butterflyCount === 2) return '/jars/jar-2.gif'
+    if (butterflyCount === 3) return '/jars/jar-3.gif'
+    if (butterflyCount === 4) return '/jars/jar-4.gif'
+    if (butterflyCount === 5) return '/jars/jar-5.gif'
+    if (butterflyCount === 6) return '/jars/jar-6.gif'
+    if (butterflyCount === 7) return '/jars/jar-7.gif'
+    if (butterflyCount === 8) return '/jars/jar-8.gif'
+    if (butterflyCount <= 15) return '/jars/jar-mid.gif'
+    return '/jars/jar-full.gif'
   }
 
   function openCollection() {
-    screen = 'collection';
-    jarSound?.play().catch(() => {});
+    screen = 'collection'
+    jarSound?.play().catch(() => {})
   }
 
   function letThemFly() {
-    if (butterflyCount < 21 || isReleasing) return;
+    if (butterflyCount < 21 || isReleasing || !user) return
 
-    releaseSound?.play().catch(() => {});
+    releaseSound?.play().catch(() => {})
 
     if (resetTimer) {
-      clearTimeout(resetTimer);
-      resetTimer = null;
+      clearTimeout(resetTimer)
+      resetTimer = null
     }
 
-    currentAnimatingCategory = null;
-    currentPulseNumber = null;
-    isReleasing = true;
+    currentAnimatingCategory = null
+    currentPulseNumber = null
+    isReleasing = true
 
     if (releaseTimer) {
-      clearTimeout(releaseTimer);
+      clearTimeout(releaseTimer)
     }
 
-    releaseTimer = setTimeout(() => {
-      butterflyCount = 0;
-      saveButterflyCount();
-      saveJoyState();
-      isReleasing = false;
-      releaseTimer = null;
-    }, 3000);
+    releaseTimer = setTimeout(async () => {
+      butterflyCount = 0
+      await saveJoyState()
+      isReleasing = false
+      releaseTimer = null
+    }, 3000)
   }
 
   onDestroy(() => {
-    if (resetTimer) clearTimeout(resetTimer);
-    if (releaseTimer) clearTimeout(releaseTimer);
-    authSubscription?.unsubscribe();
-  });
+    if (resetTimer) clearTimeout(resetTimer)
+    if (releaseTimer) clearTimeout(releaseTimer)
+  })
 </script>
 
 <svelte:head>
