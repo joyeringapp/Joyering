@@ -224,12 +224,25 @@ const translations = {
   }
 
   function loadSavedLanguage() {
-    const savedLanguage = localStorage.getItem('joyering-language')
+  const savedLanguage = localStorage.getItem('joyering-language')
 
-    if (savedLanguage === 'en' || savedLanguage === 'it' || savedLanguage === 'pt') {
-      language = savedLanguage
-    }
+  // If the user already chose a language, use it
+  if (savedLanguage === 'en' || savedLanguage === 'it' || savedLanguage === 'pt') {
+    language = savedLanguage
+    return
   }
+
+  // Detect browser language
+  const browserLang = navigator.language || ''
+
+  if (browserLang.startsWith('it')) {
+    language = 'it'
+  } else if (browserLang.startsWith('pt')) {
+    language = 'pt'
+  } else {
+    language = 'en'
+  }
+}
 
   /**
    * @param {'en' | 'it' | 'pt'} newLanguage
