@@ -497,6 +497,7 @@
 
   :global(body) {
     min-height: 100vh;
+    background: #000;
   }
 
   :global(*) {
@@ -566,6 +567,7 @@
   min-height: 100vh;
   width: 100%;
   background: #000;
+  overflow: hidden;
 }
 
   .auth-form button,
