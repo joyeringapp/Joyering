@@ -18,13 +18,10 @@
   let releaseSound = null
 
   let butterflyCount = 0
-  let screen = 'garden'
-  let isReleasing = false
-  // SETTINGS
-// "settings" is the small panel opened by the gear icon.
-// It is where the user can change app preferences such as
-// theme (light/dark), language, or log out of the app.
+let screen = 'garden'
+let isReleasing = false
 let isSettingsOpen = false
+let theme = 'dark'
   
   /** @type {string | null} */
   let currentAnimatingCategory = null
@@ -87,6 +84,22 @@ let isSettingsOpen = false
       isSettingsOpen = false
     }
   }
+
+  function loadSavedTheme() {
+  const savedTheme = localStorage.getItem('joyering-theme')
+
+  if (savedTheme === 'light' || savedTheme === 'dark') {
+    theme = savedTheme
+  }
+}
+
+/**
+ * @param {'dark' | 'light'} newTheme
+ */
+ function setTheme(newTheme) {
+  theme = newTheme
+  localStorage.setItem('joyering-theme', newTheme)
+}
 
   /**
    * @param {string[]} paths
@@ -214,7 +227,8 @@ let isSettingsOpen = false
   }
 
   onMount(async () => {
-    setupTapSounds()
+  loadSavedTheme()
+  setupTapSounds()
 
     preloadImages([
       '/jars/jar-empty.gif',
@@ -365,7 +379,7 @@ let isSettingsOpen = false
   </div>
 
 {:else}
-  <div class="app-shell">
+<div class={`app-shell theme-${theme}`}>
     {#if screen === 'garden'}
   <button
     class="settings-button"
@@ -503,7 +517,26 @@ let isSettingsOpen = false
 
           <div class="settings-section">
             <p class="settings-label">Theme</p>
-            <p class="settings-placeholder">Coming soon</p>
+          
+            <div class="settings-choice-row">
+              <button
+                class:active-choice={theme === 'dark'}
+                class="settings-choice"
+                type="button"
+                on:click={() => setTheme('dark')}
+              >
+                Dark
+              </button>
+          
+              <button
+                class:active-choice={theme === 'light'}
+                class="settings-choice"
+                type="button"
+                on:click={() => setTheme('light')}
+              >
+                Light
+              </button>
+            </div>
           </div>
 
           <div class="settings-section">
@@ -614,6 +647,59 @@ let isSettingsOpen = false
     overflow: hidden;
   }
 
+  .app-shell.theme-light {
+  background: #f7f6f1;
+  color: #151515;
+}
+
+.app-shell.theme-light .page,
+.app-shell.theme-light .collection-screen,
+.app-shell.theme-light .wrapper,
+.app-shell.theme-light .jar-block {
+  background: transparent;
+  color: #151515;
+}
+
+.app-shell.theme-light h1,
+.app-shell.theme-light .subtitle,
+.app-shell.theme-light .category-label,
+.app-shell.theme-light .joy-count {
+  color: #151515;
+}
+
+.app-shell.theme-light .settings-button {
+  background: rgba(0, 0, 0, 0.08);
+  color: #151515;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.app-shell.theme-light .settings-modal {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #151515;
+}
+
+.app-shell.theme-light .settings-header h2,
+.app-shell.theme-light .settings-label,
+.app-shell.theme-light .settings-placeholder,
+.app-shell.theme-light .settings-close {
+  color: #151515;
+}
+
+.app-shell.theme-light .settings-divider {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.app-shell.theme-light .settings-choice {
+  background: rgba(0, 0, 0, 0.08);
+  color: #151515;
+}
+
+.app-shell.theme-light .settings-logout {
+  background: rgba(0, 0, 0, 0.08);
+  color: #151515;
+}
+
   .auth-form button,
   .collection-button,
   .fly-button {
@@ -637,16 +723,16 @@ let isSettingsOpen = false
   }
 
   .page {
-    min-height: 100vh;
-    width: 100%;
-    background: #000;
-    display: flex;
-    justify-content: center;
-    padding:
-      env(safe-area-inset-top)
-      20px
-      calc(36px + env(safe-area-inset-bottom));
-  }
+  min-height: 100vh;
+  width: 100%;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  padding:
+    env(safe-area-inset-top)
+    20px
+    calc(36px + env(safe-area-inset-bottom));
+}
 
   .wrapper {
     width: 100%;
@@ -947,6 +1033,31 @@ let isSettingsOpen = false
     margin-bottom: 18px;
   }
 
+  .settings-choice-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.settings-choice {
+  min-height: 40px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.active-choice {
+  background: #62c7cf;
+  color: #000;
+}
+
   .settings-label {
     margin: 0 0 6px;
     font-size: 0.98rem;
@@ -1010,16 +1121,16 @@ let isSettingsOpen = false
     }
 
     .page {
-      min-height: 100vh;
-      width: 100%;
-      background: #000;
-      display: flex;
-      justify-content: center;
-      padding:
-        env(safe-area-inset-top)
-        14px
-        calc(34px + env(safe-area-inset-bottom));
-    }
+  min-height: 100vh;
+  width: 100%;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  padding:
+    env(safe-area-inset-top)
+    14px
+    calc(34px + env(safe-area-inset-bottom));
+}
 
     .wrapper {
       max-width: 360px;
