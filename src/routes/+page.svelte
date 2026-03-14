@@ -17,31 +17,17 @@
   /** @type {HTMLAudioElement | null} */
   let releaseSound = null
 
-  // Total butterflies the user has collected
   let butterflyCount = 0
-
-  // Which screen of the app is currently visible
-  // 'garden' = category screen
-  // 'collection' = jar screen
   let screen = 'garden'
-
-  // True while the butterfly release animation is running
   let isReleasing = false
-
-  // SETTINGS
   let isSettingsOpen = false
-
-  // Theme preference for the app
   let theme = 'dark'
 
-  // Language preference for the app
   /** @type {'en' | 'it' | 'pt'} */
-let language = 'en'
+  let language = 'en'
 
-  // Install card visibility
   let showInstallCard = true
 
-  // Browser install prompt data
   /** @type {any} */
   let installPrompt = null
   let canInstall = false
@@ -82,8 +68,8 @@ let language = 'en'
     '/sounds/si.mp3'
   ]
 
-  /** @type {Record<string, Record<string, string>>} */
-const translations = {
+  /** @type {Record<string, any>} */
+  const translations = {
     en: {
       loading: 'Loading...',
       appSubtitle: 'Catch your joyful moments, one butterfly at a time.',
@@ -104,6 +90,21 @@ const translations = {
       installCardText: 'Install Joyering on your phone so it’s always there when a joyful moment appears.',
       installButton: 'Install Joyering',
       notNow: 'Not now',
+
+      categories: {
+        love: 'Love',
+        friends: 'Friends',
+        success: 'Success',
+        creativity: 'Create',
+        work: 'Work',
+        money: 'Money',
+        goodies: 'Treats',
+        family: 'Family',
+        exercise: 'Move',
+        surprise: 'Surprise',
+        nature: 'Nature',
+        other: 'Other'
+      },
 
       settingsTitle: 'Settings',
       themeLabel: 'Theme',
@@ -137,6 +138,21 @@ const translations = {
       installButton: 'Installa Joyering',
       notNow: 'Non ora',
 
+      categories: {
+        love: 'Amore',
+        friends: 'Amici',
+        success: 'Successo',
+        creativity: 'Crea',
+        work: 'Lavoro',
+        money: 'Soldi',
+        goodies: 'Gioie',
+        family: 'Famiglia',
+        exercise: 'Sport',
+        surprise: 'Sorpresa',
+        nature: 'Natura',
+        other: 'Altro'
+      },
+
       settingsTitle: 'Impostazioni',
       themeLabel: 'Tema',
       dark: 'Scuro',
@@ -168,6 +184,21 @@ const translations = {
       installCardText: 'Instale Joyering no seu telefone para que ele esteja sempre ali quando um momento feliz aparecer.',
       installButton: 'Instalar Joyering',
       notNow: 'Agora não',
+
+      categories: {
+        love: 'Amor',
+        friends: 'Amigos',
+        success: 'Sucesso',
+        creativity: 'Criar',
+        work: 'Trabalho',
+        money: 'Dinheiro',
+        goodies: 'Prazer',
+        family: 'Família',
+        exercise: 'Mover',
+        surprise: 'Surpresa',
+        nature: 'Natureza',
+        other: 'Outro'
+      },
 
       settingsTitle: 'Configurações',
       themeLabel: 'Tema',
@@ -224,25 +255,23 @@ const translations = {
   }
 
   function loadSavedLanguage() {
-  const savedLanguage = localStorage.getItem('joyering-language')
+    const savedLanguage = localStorage.getItem('joyering-language')
 
-  // If the user already chose a language, use it
-  if (savedLanguage === 'en' || savedLanguage === 'it' || savedLanguage === 'pt') {
-    language = savedLanguage
-    return
+    if (savedLanguage === 'en' || savedLanguage === 'it' || savedLanguage === 'pt') {
+      language = savedLanguage
+      return
+    }
+
+    const browserLang = navigator.language || ''
+
+    if (browserLang.startsWith('it')) {
+      language = 'it'
+    } else if (browserLang.startsWith('pt')) {
+      language = 'pt'
+    } else {
+      language = 'en'
+    }
   }
-
-  // Detect browser language
-  const browserLang = navigator.language || ''
-
-  if (browserLang.startsWith('it')) {
-    language = 'it'
-  } else if (browserLang.startsWith('pt')) {
-    language = 'pt'
-  } else {
-    language = 'en'
-  }
-}
 
   /**
    * @param {'en' | 'it' | 'pt'} newLanguage
@@ -253,9 +282,9 @@ const translations = {
   }
 
   /** @param {string} key */
-function t(key) {
-  return translations[language]?.[key] || translations.en[key] || key
-}
+  function t(key) {
+    return translations[language]?.[key] || translations.en[key] || key
+  }
 
   function joyfulMomentText() {
     if (butterflyCount === 1) {
@@ -423,7 +452,7 @@ function t(key) {
       )
 
     if (error) {
-        console.error('Error saving joy state:', error)
+      console.error('Error saving joy state:', error)
     }
   }
 
@@ -706,13 +735,13 @@ function t(key) {
                     <img
                       class="category-icon"
                       src={category.icon}
-                      alt={category.name}
+                      alt={translations[language].categories[category.key]}
                       draggable="false"
                     />
                   {/if}
                 </div>
 
-                <span class="category-label">{category.name}</span>
+                <span class="category-label">{translations[language].categories[category.key]}</span>
               </button>
             {/each}
           </div>
@@ -1176,7 +1205,7 @@ function t(key) {
   }
 
   .category-label {
-    font-size: 0.96rem;
+    font-size: 0.9rem;
     line-height: 1.1;
     color: white;
     pointer-events: none;
