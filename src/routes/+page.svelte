@@ -388,6 +388,11 @@
         <button on:click={login}>
           Send me a login link
         </button>
+
+        <p class="install-hint">
+          Add Joyering to your phone and open it anytime a joyful moment appears.
+        </p>
+
       </div>
     </div>
   </div>
@@ -653,6 +658,15 @@
     font-size: 1rem;
     outline: none;
   }
+
+  .install-hint {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  opacity: 0.75;
+  max-width: 320px;
+  text-align: center;
+}
 
   .app-shell {
     min-height: 100vh;
