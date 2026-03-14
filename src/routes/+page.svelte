@@ -23,7 +23,13 @@ let isReleasing = false
 let isSettingsOpen = false
 let theme = 'dark'
 let language = 'en'
-  
+
+/** @type {any} */
+let deferredInstallPrompt = null
+let canInstallApp = false
+let isInstalled = false
+let hideInstallBanner = false
+
   /** @type {string | null} */
   let currentAnimatingCategory = null
 
@@ -148,6 +154,38 @@ const translations = {
     italian: 'Italiano',
     portuguese: 'Português'
   }
+}
+
+function loadInstallBannerPreference() {
+  const saved = localStorage.getItem('joyering-hide-install-banner')
+  hideInstallBanner = saved === 'true'
+}
+
+function dismissInstallBanner() {
+  hideInstallBanner = true
+  localStorage.setItem('joyering-hide-install-banner', 'true')
+}
+
+function checkIfInstalled() {
+  isInstalled =
+    window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true
+}
+
+async function installApp() {
+  if (!deferredInstallPrompt) return
+
+  deferredInstallPrompt.prompt()
+
+  const choiceResult = await deferredInstallPrompt.userChoice
+
+  if (choiceResult.outcome === 'accepted') {
+    hideInstallBanner = true
+    localStorage.setItem('joyering-hide-install-banner', 'true')
+  }
+
+  deferredInstallPrompt = null
+  canInstallApp = false
 }
 
 async function login() {
@@ -353,6 +391,8 @@ function setLanguage(newLanguage) {
   onMount(async () => {
   loadSavedTheme()
   loadSavedLanguage()
+  loadInstallBannerPreference()
+  checkIfInstalled()
   setupTapSounds()
 
     preloadImages([
@@ -375,8 +415,30 @@ function setLanguage(newLanguage) {
       img.src = `/butterflies/pulse${i}.gif`
     }
 
+    const handleBeforeInstallPrompt = (event: any) => {
+    event.preventDefault()
+    deferredInstallPrompt = event
+    canInstallApp = true
+  }
+
+  const handleAppInstalled = () => {
+    isInstalled = true
+    canInstallApp = false
+    deferredInstallPrompt = null
+    hideInstallBanner = true
+    localStorage.setItem('joyering-hide-install-banner', 'true')
+  }
+
+  window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+  window.addEventListener('appinstalled', handleAppInstalled)
+
     await restoreSessionAndState()
   })
+
+  return () => {
+    window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+    window.removeEventListener('appinstalled', handleAppInstalled)
+  }
 
   /**
    * @param {{ name: string; icon: string; key: string }} category
@@ -519,9 +581,52 @@ function setLanguage(newLanguage) {
     <div class="page">
       <div class="wrapper">
         {#if screen === 'garden'}
-         <h1>{tr('gardenTitle')}</h1>
-          <p class="subtitle garden-subtitle">Catch a joyful moment!</p>
+  {#if !isInstalled && !hideInstallBanner}
+    <div class="install-banner">
+      <p class="install-banner-title">Keep Joyering close</p>
 
+      {#if canInstallApp}
+        <p class="install-banner-text">
+          Add Joyering to your home screen so it’s always there when a joyful moment appears.
+        </p>
+
+        <div class="install-banner-buttons">
+          <button
+            class="install-banner-primary"
+            type="button"
+            on:click={installApp}
+          >
+            Install Joyering
+          </button>
+
+          <button
+            class="install-banner-secondary"
+            type="button"
+            on:click={dismissInstallBanner}
+          >
+            Not now
+          </button>
+        </div>
+      {:else}
+        <p class="install-banner-text">
+          Add Joyering to your home screen so it’s always there when a joyful moment appears.
+        </p>
+
+        <div class="install-banner-buttons">
+          <button
+            class="install-banner-secondary"
+            type="button"
+            on:click={dismissInstallBanner}
+          >
+            Not now
+          </button>
+        </div>
+      {/if}
+    </div>
+  {/if}
+
+  <h1>{tr('gardenTitle')}</h1>
+  <p class="subtitle garden-subtitle">{tr('gardenSubtitle')}</p>
           <div class="grid">
             {#each categories as category}
               <button
@@ -1244,6 +1349,76 @@ function setLanguage(newLanguage) {
     -webkit-appearance: none;
   }
 
+  .install-banner {
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto 24px;
+  padding: 18px 18px 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+}
+
+.install-banner-title {
+  margin: 0 0 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.install-banner-text {
+  margin: 0;
+  font-size: 0.96rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.install-banner-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.install-banner-primary,
+.install-banner-secondary {
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.install-banner-primary {
+  background: #62c7cf;
+  color: #000;
+}
+
+.install-banner-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.app-shell.theme-light .install-banner {
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.app-shell.theme-light .install-banner-title,
+.app-shell.theme-light .install-banner-text {
+  color: #151515;
+}
+
+.app-shell.theme-light .install-banner-secondary {
+  background: rgba(0, 0, 0, 0.08);
+  color: #151515;
+}
+
   @media (max-width: 640px) {
     h1 {
       font-size: 2.05rem;
@@ -1370,4 +1545,18 @@ function setLanguage(newLanguage) {
       padding: 20px 18px 18px;
     }
   }
+  .install-banner {
+  max-width: 100%;
+  margin-bottom: 18px;
+  padding: 16px 16px 14px;
+}
+
+.install-banner-title {
+  font-size: 0.98rem;
+}
+
+.install-banner-text {
+  font-size: 0.92rem;
+}
+
 </style>
