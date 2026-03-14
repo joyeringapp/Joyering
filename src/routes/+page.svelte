@@ -166,8 +166,9 @@ if (isStandaloneMode() || dismissed === 'true') {
         canInstall = false
 
         if (choiceResult?.outcome === 'accepted') {
-          showInstallCard = false
-        }
+  showInstallCard = false
+  localStorage.setItem('joyering-install-dismissed', 'true')
+}
       } catch (error) {
         console.error('Install prompt error:', error)
       }
@@ -339,10 +340,11 @@ if (isStandaloneMode() || dismissed === 'true') {
     }
 
     const handleAppInstalled = () => {
-      installPrompt = null
-      canInstall = false
-      showInstallCard = false
-    }
+  installPrompt = null
+  canInstall = false
+  showInstallCard = false
+  localStorage.setItem('joyering-install-dismissed', 'true')
+}
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
     window.addEventListener('appinstalled', handleAppInstalled)
