@@ -362,14 +362,16 @@
 
 {:else}
   <div class="app-shell">
-    <button
-      class="settings-button"
-      type="button"
-      on:click={() => (isSettingsOpen = true)}
-      aria-label="Open settings"
-    >
-      ⚙
-    </button>
+    {#if screen === 'garden'}
+  <button
+    class="settings-button"
+    type="button"
+    on:click={() => (isSettingsOpen = true)}
+    aria-label="Open settings"
+  >
+    ⚙
+  </button>
+{/if}
 
     <div class="page">
       <div class="wrapper">
@@ -1017,7 +1019,7 @@
 
     .wrapper {
       max-width: 360px;
-      margin: 70px auto 0;
+      margin: 90px auto 0;
     }
 
     .garden-subtitle {
