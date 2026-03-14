@@ -891,7 +891,6 @@
 
           <div class="settings-section legal-section">
             <p class="legal-brand">Joyering™</p>
-            <p class="legal-version">Version 1.0</p>
             <p class="legal-copy">© 2026 Ulrika Torquato</p>
             <p class="legal-copy">All rights reserved.</p>
           </div>>
