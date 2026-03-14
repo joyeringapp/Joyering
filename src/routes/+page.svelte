@@ -381,8 +381,6 @@
 
   {:else}
   <div class="app-shell">
-    <div class="topbar-spacer"></div>
-
     <div class="page">
       <div class="wrapper">
         {#if screen === 'garden'}
@@ -570,12 +568,6 @@
   background: #000;
 }
 
-.topbar-spacer {
-  width: 100%;
-  height: 28px;
-  background: #000;
-}
-
   .auth-form button,
   .collection-button,
   .fly-button {
@@ -599,16 +591,16 @@
   }
 
   .page {
-    min-height: 100vh;
-    width: 100%;
-    background: #000;
-    display: flex;
-    justify-content: center;
-    padding:
-      calc(28px + env(safe-area-inset-top))
-      20px
-      calc(36px + env(safe-area-inset-bottom));
-  }
+  min-height: 100vh;
+  width: 100%;
+  background: #000;
+  display: flex;
+  justify-content: center;
+  padding:
+    env(safe-area-inset-top)
+    20px
+    calc(36px + env(safe-area-inset-bottom));
+}
 
   .wrapper {
   width: 100%;
