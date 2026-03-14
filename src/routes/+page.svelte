@@ -34,6 +34,10 @@
   // Theme preference for the app
   let theme = 'dark'
 
+  // Language preference for the app
+  /** @type {'en' | 'it' | 'pt'} */
+let language = 'en'
+
   // Install card visibility
   let showInstallCard = true
 
@@ -78,6 +82,105 @@
     '/sounds/si.mp3'
   ]
 
+  /** @type {Record<string, Record<string, string>>} */
+const translations = {
+    en: {
+      loading: 'Loading...',
+      appSubtitle: 'Catch your joyful moments, one butterfly at a time.',
+      emailPlaceholder: 'Your email',
+      sendLoginLink: 'Send me a login link',
+      installHint: 'Add Joyering to your phone and open it anytime a joyful moment appears.',
+
+      gardenTitle: 'The Joy Garden',
+      gardenSubtitle: 'Catch a joyful moment!',
+      collectionButton: 'See Your Joy Collection',
+
+      collectionTitle: 'Collected Joy',
+      collectionSubtitle: 'Release when you reach 21!',
+      flyButton: 'Let Them Fly!',
+      collectMoreJoy: 'Collect More Joy',
+
+      installCardTitle: 'Keep Joyering close',
+      installCardText: 'Install Joyering on your phone so it’s always there when a joyful moment appears.',
+      installButton: 'Install Joyering',
+      notNow: 'Not now',
+
+      settingsTitle: 'Settings',
+      themeLabel: 'Theme',
+      dark: 'Dark',
+      light: 'Light',
+      languageLabel: 'Language',
+      logout: 'Log out',
+
+      joyfulMomentSingular: 'You have collected 1 joyful moment',
+      joyfulMomentPlural: 'You have collected {count} joyful moments'
+    },
+
+    it: {
+      loading: 'Caricamento...',
+      appSubtitle: 'Raccogli i tuoi momenti gioiosi, una farfalla alla volta.',
+      emailPlaceholder: 'La tua email',
+      sendLoginLink: 'Mandami un link di accesso',
+      installHint: 'Aggiungi Joyering al tuo telefono e aprilo ogni volta che arriva un momento gioioso.',
+
+      gardenTitle: 'Il Giardino della Gioia',
+      gardenSubtitle: 'Cattura un momento gioioso!',
+      collectionButton: 'Guarda la tua collezione di gioia',
+
+      collectionTitle: 'Gioia raccolta',
+      collectionSubtitle: 'Lasciale volare quando arrivi a 21!',
+      flyButton: 'Lasciale volare!',
+      collectMoreJoy: 'Raccogli altra gioia',
+
+      installCardTitle: 'Tieni Joyering vicino',
+      installCardText: 'Installa Joyering sul tuo telefono così sarà sempre lì quando arriva un momento gioioso.',
+      installButton: 'Installa Joyering',
+      notNow: 'Non ora',
+
+      settingsTitle: 'Impostazioni',
+      themeLabel: 'Tema',
+      dark: 'Scuro',
+      light: 'Chiaro',
+      languageLabel: 'Lingua',
+      logout: 'Esci',
+
+      joyfulMomentSingular: 'Hai raccolto 1 momento gioioso',
+      joyfulMomentPlural: 'Hai raccolto {count} momenti gioiosi'
+    },
+
+    pt: {
+      loading: 'Carregando...',
+      appSubtitle: 'Recolha seus momentos felizes, uma borboleta de cada vez.',
+      emailPlaceholder: 'Seu e-mail',
+      sendLoginLink: 'Envie-me um link de acesso',
+      installHint: 'Adicione o Joyering ao seu telefone e abra sempre que um momento feliz aparecer.',
+
+      gardenTitle: 'O Jardim da Alegria',
+      gardenSubtitle: 'Capture um momento feliz!',
+      collectionButton: 'Ver sua coleção de alegria',
+
+      collectionTitle: 'Alegria recolhida',
+      collectionSubtitle: 'Solte quando chegar a 21!',
+      flyButton: 'Deixe voar!',
+      collectMoreJoy: 'Recolher mais alegria',
+
+      installCardTitle: 'Mantenha Joyering por perto',
+      installCardText: 'Instale Joyering no seu telefone para que ele esteja sempre ali quando um momento feliz aparecer.',
+      installButton: 'Instalar Joyering',
+      notNow: 'Agora não',
+
+      settingsTitle: 'Configurações',
+      themeLabel: 'Tema',
+      dark: 'Escuro',
+      light: 'Claro',
+      languageLabel: 'Idioma',
+      logout: 'Sair',
+
+      joyfulMomentSingular: 'Você recolheu 1 momento feliz',
+      joyfulMomentPlural: 'Você recolheu {count} momentos felizes'
+    }
+  }
+
   async function login() {
     const { error } = await supabase.auth.signInWithOtp({
       email,
@@ -120,6 +223,39 @@
     localStorage.setItem('joyering-theme', newTheme)
   }
 
+  function loadSavedLanguage() {
+    const savedLanguage = localStorage.getItem('joyering-language')
+
+    if (savedLanguage === 'en' || savedLanguage === 'it' || savedLanguage === 'pt') {
+      language = savedLanguage
+    }
+  }
+
+  /**
+   * @param {'en' | 'it' | 'pt'} newLanguage
+   */
+  function setLanguage(newLanguage) {
+    language = newLanguage
+    localStorage.setItem('joyering-language', newLanguage)
+  }
+
+  /** @param {string} key */
+function t(key) {
+  return translations[language]?.[key] || translations.en[key] || key
+}
+
+  function joyfulMomentText() {
+    if (butterflyCount === 1) {
+      return t('joyfulMomentSingular')
+    }
+
+    if (butterflyCount > 1) {
+      return t('joyfulMomentPlural').replace('{count}', String(butterflyCount))
+    }
+
+    return ''
+  }
+
   function isStandaloneMode() {
     if (typeof window === 'undefined') return false
 
@@ -151,11 +287,10 @@
   }
 
   async function installJoyering() {
-    const dismissed = localStorage.getItem('joyering-install-dismissed')
-
-if (isStandaloneMode() || dismissed === 'true') {
-  showInstallCard = false
-}
+    if (isStandaloneMode()) {
+      showInstallCard = false
+      return
+    }
 
     if (installPrompt) {
       try {
@@ -166,9 +301,9 @@ if (isStandaloneMode() || dismissed === 'true') {
         canInstall = false
 
         if (choiceResult?.outcome === 'accepted') {
-  showInstallCard = false
-  localStorage.setItem('joyering-install-dismissed', 'true')
-}
+          showInstallCard = false
+          localStorage.setItem('joyering-install-dismissed', 'true')
+        }
       } catch (error) {
         console.error('Install prompt error:', error)
       }
@@ -275,7 +410,7 @@ if (isStandaloneMode() || dismissed === 'true') {
       )
 
     if (error) {
-      console.error('Error saving joy state:', error)
+        console.error('Error saving joy state:', error)
     }
   }
 
@@ -306,6 +441,7 @@ if (isStandaloneMode() || dismissed === 'true') {
 
   onMount(() => {
     loadSavedTheme()
+    loadSavedLanguage()
     setupTapSounds()
 
     preloadImages([
@@ -328,7 +464,9 @@ if (isStandaloneMode() || dismissed === 'true') {
       img.src = `/butterflies/pulse${i}.gif`
     }
 
-    if (isStandaloneMode()) {
+    const dismissed = localStorage.getItem('joyering-install-dismissed')
+
+    if (isStandaloneMode() || dismissed === 'true') {
       showInstallCard = false
     }
 
@@ -340,11 +478,11 @@ if (isStandaloneMode() || dismissed === 'true') {
     }
 
     const handleAppInstalled = () => {
-  installPrompt = null
-  canInstall = false
-  showInstallCard = false
-  localStorage.setItem('joyering-install-dismissed', 'true')
-}
+      installPrompt = null
+      canInstall = false
+      showInstallCard = false
+      localStorage.setItem('joyering-install-dismissed', 'true')
+    }
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
     window.addEventListener('appinstalled', handleAppInstalled)
@@ -448,7 +586,7 @@ if (isStandaloneMode() || dismissed === 'true') {
       />
 
       <h1>Joyering</h1>
-      <p class="auth-subtitle">Loading...</p>
+      <p class="auth-subtitle">{t('loading')}</p>
     </div>
   </div>
 
@@ -465,22 +603,22 @@ if (isStandaloneMode() || dismissed === 'true') {
       <h1>Joyering</h1>
 
       <p class="auth-subtitle">
-        Catch your joyful moments, one butterfly at a time.
+        {t('appSubtitle')}
       </p>
 
       <div class="auth-form">
         <input
           type="email"
-          placeholder="Your email"
+          placeholder={t('emailPlaceholder')}
           bind:value={email}
         />
 
         <button on:click={login}>
-          Send me a login link
+          {t('sendLoginLink')}
         </button>
 
         <p class="install-hint">
-          Add Joyering to your phone and open it anytime a joyful moment appears.
+          {t('installHint')}
         </p>
       </div>
     </div>
@@ -504,10 +642,10 @@ if (isStandaloneMode() || dismissed === 'true') {
         {#if screen === 'garden'}
           {#if showInstallCard}
             <div class="install-card">
-              <p class="install-title">Keep Joyering close</p>
+              <p class="install-title">{t('installCardTitle')}</p>
 
               <p class="install-text">
-                Install Joyering on your phone so it’s always there when a joyful moment appears.
+                {t('installCardText')}
               </p>
 
               <div class="install-buttons">
@@ -516,26 +654,25 @@ if (isStandaloneMode() || dismissed === 'true') {
                   type="button"
                   on:click={installJoyering}
                 >
-                  Install Joyering
+                  {t('installButton')}
                 </button>
-              
-                <button
-  class="install-secondary"
-  type="button"
-  on:click={() => {
-    showInstallCard = false
-    localStorage.setItem('joyering-install-dismissed', 'true')
-  }}
->
-  Not now
-</button>
 
+                <button
+                  class="install-secondary"
+                  type="button"
+                  on:click={() => {
+                    showInstallCard = false
+                    localStorage.setItem('joyering-install-dismissed', 'true')
+                  }}
+                >
+                  {t('notNow')}
+                </button>
               </div>
             </div>
           {/if}
 
-          <h1>The Joy Garden</h1>
-          <p class="subtitle garden-subtitle">Catch a joyful moment!</p>
+          <h1>{t('gardenTitle')}</h1>
+          <p class="subtitle garden-subtitle">{t('gardenSubtitle')}</p>
 
           <div class="grid">
             {#each categories as category}
@@ -572,7 +709,7 @@ if (isStandaloneMode() || dismissed === 'true') {
             type="button"
             on:click={openCollection}
           >
-            See Your Joy Collection
+            {t('collectionButton')}
           </button>
         {:else}
           <div class="collection-screen">
@@ -586,8 +723,8 @@ if (isStandaloneMode() || dismissed === 'true') {
                 />
               </div>
             {:else}
-              <h1>Collected Joy</h1>
-              <p class="subtitle collection-subtitle">Release when you reach 21!</p>
+              <h1>{t('collectionTitle')}</h1>
+              <p class="subtitle collection-subtitle">{t('collectionSubtitle')}</p>
 
               <div class="jar-block">
                 <div class="jar-area">
@@ -600,11 +737,7 @@ if (isStandaloneMode() || dismissed === 'true') {
                 </div>
 
                 <p class="joy-count">
-                  {#if butterflyCount === 1}
-                    You have collected 1 joyful moment
-                  {:else if butterflyCount > 1}
-                    You have collected {butterflyCount} joyful moments
-                  {/if}
+                  {joyfulMomentText()}
                 </p>
               </div>
 
@@ -615,7 +748,7 @@ if (isStandaloneMode() || dismissed === 'true') {
                     type="button"
                     on:click={letThemFly}
                   >
-                    Let Them Fly!
+                    {t('flyButton')}
                   </button>
                 {/if}
 
@@ -624,7 +757,7 @@ if (isStandaloneMode() || dismissed === 'true') {
                   type="button"
                   on:click={() => (screen = 'garden')}
                 >
-                  Collect More Joy
+                  {t('collectMoreJoy')}
                 </button>
               </div>
             {/if}
@@ -643,7 +776,7 @@ if (isStandaloneMode() || dismissed === 'true') {
           on:click|stopPropagation
         >
           <div class="settings-header">
-            <h2>Settings</h2>
+            <h2>{t('settingsTitle')}</h2>
 
             <button
               class="settings-close"
@@ -656,7 +789,7 @@ if (isStandaloneMode() || dismissed === 'true') {
           </div>
 
           <div class="settings-section">
-            <p class="settings-label">Theme</p>
+            <p class="settings-label">{t('themeLabel')}</p>
 
             <div class="settings-choice-row">
               <button
@@ -665,7 +798,7 @@ if (isStandaloneMode() || dismissed === 'true') {
                 type="button"
                 on:click={() => setTheme('dark')}
               >
-                Dark
+                {t('dark')}
               </button>
 
               <button
@@ -674,14 +807,42 @@ if (isStandaloneMode() || dismissed === 'true') {
                 type="button"
                 on:click={() => setTheme('light')}
               >
-                Light
+                {t('light')}
               </button>
             </div>
           </div>
 
           <div class="settings-section">
-            <p class="settings-label">Language</p>
-            <p class="settings-placeholder">Coming soon</p>
+            <p class="settings-label">{t('languageLabel')}</p>
+
+            <div class="settings-choice-row">
+              <button
+                class:active-choice={language === 'en'}
+                class="settings-choice"
+                type="button"
+                on:click={() => setLanguage('en')}
+              >
+                English
+              </button>
+
+              <button
+                class:active-choice={language === 'it'}
+                class="settings-choice"
+                type="button"
+                on:click={() => setLanguage('it')}
+              >
+                Italiano
+              </button>
+
+              <button
+                class:active-choice={language === 'pt'}
+                class="settings-choice"
+                type="button"
+                on:click={() => setLanguage('pt')}
+              >
+                Português
+              </button>
+            </div>
           </div>
 
           <div class="settings-divider"></div>
@@ -691,7 +852,7 @@ if (isStandaloneMode() || dismissed === 'true') {
             type="button"
             on:click={logout}
           >
-            Log out
+            {t('logout')}
           </button>
         </div>
       </div>
@@ -830,7 +991,6 @@ if (isStandaloneMode() || dismissed === 'true') {
 
   .app-shell.theme-light .settings-header h2,
   .app-shell.theme-light .settings-label,
-  .app-shell.theme-light .settings-placeholder,
   .app-shell.theme-light .settings-close {
     color: #151515;
   }
@@ -1198,12 +1358,6 @@ if (isStandaloneMode() || dismissed === 'true') {
     margin: 0 0 6px;
     font-size: 0.98rem;
     font-weight: 700;
-  }
-
-  .settings-placeholder {
-    margin: 0;
-    font-size: 0.96rem;
-    opacity: 0.8;
   }
 
   .settings-choice-row {
