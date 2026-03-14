@@ -413,9 +413,27 @@
     <div class="page">
       <div class="wrapper">
         {#if screen === 'garden'}
-          <h1>The Joy Garden</h1>
-          <p class="subtitle garden-subtitle">Catch a joyful moment!</p>
 
+  <div class="install-card">
+    <p class="install-title">Keep Joyering close</p>
+
+    <p class="install-text">
+      Install Joyering on your phone so it’s always there when a joyful moment appears.
+    </p>
+
+    <div class="install-buttons">
+      <button class="install-primary">
+        Install Joyering
+      </button>
+
+      <button class="install-secondary">
+        Not now
+      </button>
+    </div>
+  </div>
+
+  <h1>The Joy Garden</h1>
+  <p class="subtitle garden-subtitle">Catch a joyful moment!</p>
           <div class="grid">
             {#each categories as category}
               <button
@@ -1120,6 +1138,66 @@
     appearance: none;
     -webkit-appearance: none;
   }
+
+  .install-card {
+  width: 100%;
+  max-width: 420px;
+  margin-bottom: 26px;
+  padding: 18px 18px 16px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  text-align: center;
+}
+
+.install-title {
+  margin: 0 0 6px;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.install-text {
+  margin: 0;
+  font-size: 0.92rem;
+  opacity: 0.9;
+}
+
+.install-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.install-primary {
+  padding: 0 14px;
+  height: 36px;
+  border-radius: 999px;
+  border: none;
+  background: #62c7cf;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.install-secondary {
+  padding: 0 14px;
+  height: 36px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(255,255,255,0.1);
+  color: white;
+  cursor: pointer;
+}
+
+.app-shell.theme-light .install-card {
+  background: rgba(0,0,0,0.05);
+  border: 1px solid rgba(0,0,0,0.08);
+}
+
+.app-shell.theme-light .install-secondary {
+  background: rgba(0,0,0,0.08);
+  color: #151515;
+}
 
   @media (max-width: 640px) {
     h1 {
