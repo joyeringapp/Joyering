@@ -8,32 +8,31 @@
   /** @type {import('@supabase/supabase-js').User | null} */
   let user = null
 
-  /** @type {{ unsubscribe: () => void } | null} */
-  let authSubscription = null
+  /** @type {HTMLAudioElement[]} */
+  let tapSounds = []
 
-  async function login() {
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: window.location.origin
-      }
-    })
+  /** @type {HTMLAudioElement | null} */
+  let jarSound = null
 
-    if (error) {
-      alert(error.message)
-    } else {
-      alert('Check your email for the login link!')
-      email = ''
-    }
-  }
+  /** @type {HTMLAudioElement | null} */
+  let releaseSound = null
 
-  async function logout() {
-    const { error } = await supabase.auth.signOut()
+  let butterflyCount = 0
+  let screen = 'garden'
+  let isReleasing = false
+  let isSettingsOpen = false
 
-    if (error) {
-      alert(error.message)
-    }
-  }
+  /** @type {string | null} */
+  let currentAnimatingCategory = null
+
+  /** @type {number | null} */
+  let currentPulseNumber = null
+
+  /** @type {ReturnType<typeof setTimeout> | null} */
+  let resetTimer = null
+
+  /** @type {ReturnType<typeof setTimeout> | null} */
+  let releaseTimer = null
 
   /** @type {{ name: string; icon: string; key: string }[]} */
   const categories = [
@@ -59,30 +58,31 @@
     '/sounds/si.mp3'
   ]
 
-  /** @type {HTMLAudioElement[]} */
-  let tapSounds = []
+  async function login() {
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: window.location.origin
+      }
+    })
 
-  /** @type {HTMLAudioElement | null} */
-  let jarSound = null
+    if (error) {
+      alert(error.message)
+    } else {
+      alert('Check your email for the login link!')
+      email = ''
+    }
+  }
 
-  /** @type {HTMLAudioElement | null} */
-  let releaseSound = null
+  async function logout() {
+    const { error } = await supabase.auth.signOut()
 
-  let butterflyCount = 0
-  let screen = 'garden'
-  let isReleasing = false
-
-  /** @type {string | null} */
-  let currentAnimatingCategory = null
-
-  /** @type {number | null} */
-  let currentPulseNumber = null
-
-  /** @type {ReturnType<typeof setTimeout> | null} */
-  let resetTimer = null
-
-  /** @type {ReturnType<typeof setTimeout> | null} */
-  let releaseTimer = null
+    if (error) {
+      alert(error.message)
+    } else {
+      isSettingsOpen = false
+    }
+  }
 
   /**
    * @param {string[]} paths
@@ -233,24 +233,6 @@
     }
 
     await restoreSessionAndState()
-
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      user = session?.user ?? null
-
-      if (user) {
-        loadJoyState()
-      } else {
-        butterflyCount = 0
-        screen = 'garden'
-        isReleasing = false
-        currentAnimatingCategory = null
-        currentPulseNumber = null
-      }
-
-      isLoadingSession = false
-    })
-
-    authSubscription = data.subscription
   })
 
   /**
@@ -331,7 +313,6 @@
 
 <svelte:head>
   <title>Joyering</title>
-  <meta name="theme-color" content="#000000">
 </svelte:head>
 
 {#if isLoadingSession}
@@ -379,8 +360,17 @@
     </div>
   </div>
 
-  {:else}
+{:else}
   <div class="app-shell">
+    <button
+      class="settings-button"
+      type="button"
+      on:click={() => (isSettingsOpen = true)}
+      aria-label="Open settings"
+    >
+      ⚙
+    </button>
+
     <div class="page">
       <div class="wrapper">
         {#if screen === 'garden'}
@@ -482,22 +472,70 @@
         {/if}
       </div>
     </div>
+
+    {#if isSettingsOpen}
+      <div
+        class="settings-overlay"
+        on:click={() => (isSettingsOpen = false)}
+      >
+        <div
+          class="settings-modal"
+          on:click|stopPropagation
+        >
+          <div class="settings-header">
+            <h2>Settings</h2>
+
+            <button
+              class="settings-close"
+              type="button"
+              on:click={() => (isSettingsOpen = false)}
+              aria-label="Close settings"
+            >
+              ×
+            </button>
+          </div>
+
+          <div class="settings-section">
+            <p class="settings-label">Theme</p>
+            <p class="settings-placeholder">Coming soon</p>
+          </div>
+
+          <div class="settings-section">
+            <p class="settings-label">Language</p>
+            <p class="settings-placeholder">Coming soon</p>
+          </div>
+
+          <div class="settings-divider"></div>
+
+          <button
+            class="settings-logout"
+            type="button"
+            on:click={logout}
+          >
+            Log out
+          </button>
+        </div>
+      </div>
+    {/if}
   </div>
 {/if}
 
 <style>
-  :global(html, body) {
+  :global(html) {
     margin: 0;
     padding: 0;
+    background: #000;
+    min-height: 100%;
+  }
+
+  :global(body) {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
     background: #000;
     color: #fff;
     font-family: Arial, Helvetica, sans-serif;
     -webkit-tap-highlight-color: transparent;
-  }
-
-  :global(body) {
-    min-height: 100vh;
-    background: #000;
   }
 
   :global(*) {
@@ -564,11 +602,11 @@
   }
 
   .app-shell {
-  min-height: 100vh;
-  width: 100%;
-  background: #000;
-  overflow: hidden;
-}
+    min-height: 100vh;
+    width: 100%;
+    background: #000;
+    overflow: hidden;
+  }
 
   .auth-form button,
   .collection-button,
@@ -593,25 +631,25 @@
   }
 
   .page {
-  min-height: 100vh;
-  width: 100%;
-  background: #000;
-  display: flex;
-  justify-content: center;
-  padding:
-    env(safe-area-inset-top)
-    20px
-    calc(36px + env(safe-area-inset-bottom));
-}
+    min-height: 100vh;
+    width: 100%;
+    background: #000;
+    display: flex;
+    justify-content: center;
+    padding:
+      env(safe-area-inset-top)
+      20px
+      calc(36px + env(safe-area-inset-bottom));
+  }
 
   .wrapper {
-  width: 100%;
-  max-width: 760px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 0 auto;
-}
+    width: 100%;
+    max-width: 760px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 auto;
+  }
 
   h1 {
     margin: 0;
@@ -670,17 +708,17 @@
   }
 
   .category:focus,
-.category:focus-visible,
-.category:active,
-.auth-form button:focus,
-.auth-form button:focus-visible,
-.collection-button:focus,
-.collection-button:focus-visible,
-.fly-button:focus,
-.fly-button:focus-visible {
-  outline: none;
-  box-shadow: none;
-}
+  .category:focus-visible,
+  .category:active,
+  .auth-form button:focus,
+  .auth-form button:focus-visible,
+  .collection-button:focus,
+  .collection-button:focus-visible,
+  .fly-button:focus,
+  .fly-button:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
 
   .visual-slot {
     width: 78px;
@@ -735,20 +773,20 @@
 
   .fly-button {
     background: #d86fa5;
-    box-shadow: 0 8px 20px rgba(216, 111, 165, 0.30);
+    box-shadow: 0 8px 20px rgba(216, 111, 165, 0.3);
   }
 
   .auth-form button:hover,
-.collection-button:hover,
-.fly-button:hover {
-  filter: brightness(1.03);
-}
+  .collection-button:hover,
+  .fly-button:hover {
+    filter: brightness(1.03);
+  }
 
-.collection-button:active,
-.fly-button:active,
-.auth-form button:active {
-  transform: translateY(1px);
-}
+  .collection-button:active,
+  .fly-button:active,
+  .auth-form button:active {
+    transform: translateY(1px);
+  }
 
   .collection-screen {
     width: 100%;
@@ -819,6 +857,123 @@
     transform: translateY(-32px);
   }
 
+  .settings-button {
+    position: fixed;
+    top: calc(env(safe-area-inset-top) + 14px);
+    left: 14px;
+    width: 42px;
+    height: 42px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    font-size: 1.2rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    z-index: 1000;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
+  }
+
+  .settings-button:focus,
+  .settings-button:focus-visible,
+  .settings-close:focus,
+  .settings-close:focus-visible,
+  .settings-logout:focus,
+  .settings-logout:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+
+  .settings-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 1100;
+  }
+
+  .settings-modal {
+    width: 100%;
+    max-width: 360px;
+    border-radius: 22px;
+    background: rgba(18, 18, 18, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 22px 20px 20px;
+    color: #fff;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+  }
+
+  .settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+
+  .settings-header h2 {
+    margin: 0;
+    font-size: 1.35rem;
+    line-height: 1.1;
+    font-weight: 700;
+  }
+
+  .settings-close {
+    border: none;
+    background: transparent;
+    color: #fff;
+    font-size: 1.8rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .settings-section {
+    margin-bottom: 18px;
+  }
+
+  .settings-label {
+    margin: 0 0 6px;
+    font-size: 0.98rem;
+    font-weight: 700;
+  }
+
+  .settings-placeholder {
+    margin: 0;
+    font-size: 0.96rem;
+    opacity: 0.8;
+  }
+
+  .settings-divider {
+    width: 100%;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 10px 0 16px;
+  }
+
+  .settings-logout {
+    width: 100%;
+    min-height: 46px;
+    border: none;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
   @media (max-width: 640px) {
     h1 {
       font-size: 2.05rem;
@@ -849,21 +1004,21 @@
     }
 
     .page {
-  min-height: 100vh;
-  width: 100%;
-  background: #000;
-  display: flex;
-  justify-content: center;
-  padding:
-    env(safe-area-inset-top)
-    14px
-    calc(34px + env(safe-area-inset-bottom));
-}
+      min-height: 100vh;
+      width: 100%;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      padding:
+        env(safe-area-inset-top)
+        14px
+        calc(34px + env(safe-area-inset-bottom));
+    }
 
     .wrapper {
-  max-width: 360px;
-  margin: 70px auto 0;
-}
+      max-width: 360px;
+      margin: 70px auto 0;
+    }
 
     .garden-subtitle {
       margin: 14px 0 58px;
@@ -927,6 +1082,22 @@
 
     .release-animation {
       width: 96vw;
+    }
+
+    .settings-button {
+      top: calc(env(safe-area-inset-top) + 10px);
+      left: 10px;
+      width: 40px;
+      height: 40px;
+    }
+
+    .settings-overlay {
+      padding: 18px;
+    }
+
+    .settings-modal {
+      max-width: 340px;
+      padding: 20px 18px 18px;
     }
   }
 </style>
