@@ -37,7 +37,13 @@
   // Theme preference for the app
   let theme = 'dark'
 
+  // Install card visibility
   let showInstallCard = true
+
+  // Browser install prompt data
+  /** @type {any} */
+  let installPrompt = null
+  let canInstall = false
 
   /** @type {string | null} */
   let currentAnimatingCategory = null
@@ -115,6 +121,14 @@
   function setTheme(newTheme) {
     theme = newTheme
     localStorage.setItem('joyering-theme', newTheme)
+  }
+
+  async function installJoyering() {
+    if (!installPrompt) return
+
+    await installPrompt.prompt()
+    installPrompt = null
+    canInstall = false
   }
 
   /**
@@ -266,7 +280,19 @@
       img.src = `/butterflies/pulse${i}.gif`
     }
 
+    const handleBeforeInstallPrompt = (event) => {
+      event.preventDefault()
+      installPrompt = event
+      canInstall = true
+    }
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+
     await restoreSessionAndState()
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+    }
   })
 
   /**
@@ -394,18 +420,26 @@
         <p class="install-hint">
           Add Joyering to your phone and open it anytime a joyful moment appears.
         </p>
-
       </div>
     </div>
   </div>
 
-  {:else}
+{:else}
   <div class={`app-shell theme-${theme}`}>
+    {#if screen === 'garden'}
+      <button
+        class="settings-button"
+        type="button"
+        on:click={() => (isSettingsOpen = true)}
+        aria-label="Open settings"
+      >
+        ⚙
+      </button>
+    {/if}
+
     <div class="page">
       <div class="wrapper">
-
         {#if screen === 'garden'}
-
           {#if showInstallCard}
             <div class="install-card">
               <p class="install-title">Keep Joyering close</p>
@@ -415,9 +449,15 @@
               </p>
 
               <div class="install-buttons">
-                <button class="install-primary">
-                  Install Joyering
-                </button>
+                {#if canInstall}
+                  <button
+                    class="install-primary"
+                    type="button"
+                    on:click={installJoyering}
+                  >
+                    Install Joyering
+                  </button>
+                {/if}
 
                 <button
                   class="install-secondary"
@@ -470,11 +510,8 @@
           >
             See Your Joy Collection
           </button>
-
         {:else}
-
           <div class="collection-screen">
-
             {#if isReleasing}
               <div class="release-screen">
                 <img
@@ -484,9 +521,7 @@
                   draggable="false"
                 />
               </div>
-
             {:else}
-
               <h1>Collected Joy</h1>
               <p class="subtitle collection-subtitle">Release when you reach 21!</p>
 
@@ -510,7 +545,6 @@
               </div>
 
               <div class="collection-buttons">
-
                 {#if butterflyCount >= 21}
                   <button
                     class="fly-button"
@@ -528,15 +562,10 @@
                 >
                   Collect More Joy
                 </button>
-
               </div>
-
             {/if}
-
           </div>
-
         {/if}
-
       </div>
     </div>
 
@@ -600,11 +629,9 @@
           >
             Log out
           </button>
-
         </div>
       </div>
     {/if}
-
   </div>
 {/if}
 
@@ -690,13 +717,13 @@
   }
 
   .install-hint {
-  margin-top: 10px;
-  font-size: 0.9rem;
-  line-height: 1.4;
-  opacity: 0.75;
-  max-width: 320px;
-  text-align: center;
-}
+    margin-top: 10px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    opacity: 0.75;
+    max-width: 320px;
+    text-align: center;
+  }
 
   .app-shell {
     min-height: 100vh;
@@ -754,6 +781,16 @@
   }
 
   .app-shell.theme-light .settings-logout {
+    background: rgba(0, 0, 0, 0.08);
+    color: #151515;
+  }
+
+  .app-shell.theme-light .install-card {
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .app-shell.theme-light .install-secondary {
     background: rgba(0, 0, 0, 0.08);
     color: #151515;
   }
@@ -1152,64 +1189,54 @@
   }
 
   .install-card {
-  width: 100%;
-  max-width: 420px;
-  margin-bottom: 26px;
-  padding: 18px 18px 16px;
-  border-radius: 18px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.08);
-  text-align: center;
-}
+    width: 100%;
+    max-width: 420px;
+    margin-bottom: 26px;
+    padding: 18px 18px 16px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    text-align: center;
+  }
 
-.install-title {
-  margin: 0 0 6px;
-  font-size: 1rem;
-  font-weight: 700;
-}
+  .install-title {
+    margin: 0 0 6px;
+    font-size: 1rem;
+    font-weight: 700;
+  }
 
-.install-text {
-  margin: 0;
-  font-size: 0.92rem;
-  opacity: 0.9;
-}
+  .install-text {
+    margin: 0;
+    font-size: 0.92rem;
+    opacity: 0.9;
+  }
 
-.install-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 12px;
-}
+  .install-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 12px;
+  }
 
-.install-primary {
-  padding: 0 14px;
-  height: 36px;
-  border-radius: 999px;
-  border: none;
-  background: #62c7cf;
-  font-weight: 700;
-  cursor: pointer;
-}
+  .install-primary {
+    padding: 0 14px;
+    height: 36px;
+    border-radius: 999px;
+    border: none;
+    background: #62c7cf;
+    font-weight: 700;
+    cursor: pointer;
+  }
 
-.install-secondary {
-  padding: 0 14px;
-  height: 36px;
-  border-radius: 999px;
-  border: none;
-  background: rgba(255,255,255,0.1);
-  color: white;
-  cursor: pointer;
-}
-
-.app-shell.theme-light .install-card {
-  background: rgba(0,0,0,0.05);
-  border: 1px solid rgba(0,0,0,0.08);
-}
-
-.app-shell.theme-light .install-secondary {
-  background: rgba(0,0,0,0.08);
-  color: #151515;
-}
+  .install-secondary {
+    padding: 0 14px;
+    height: 36px;
+    border-radius: 999px;
+    border: none;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    cursor: pointer;
+  }
 
   @media (max-width: 640px) {
     h1 {
