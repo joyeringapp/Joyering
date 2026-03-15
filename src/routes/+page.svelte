@@ -28,6 +28,8 @@
 
   let showInstallCard = true
 
+  let logoutMessage = ''
+
   /** @type {any} */
   let installPrompt = null
   let canInstall = false
@@ -232,14 +234,19 @@
   }
 
   async function logout() {
-    const { error } = await supabase.auth.signOut()
+  const { error } = await supabase.auth.signOut()
 
-    if (error) {
-      alert(error.message)
-    } else {
-      isSettingsOpen = false
-    }
+  if (error) {
+    alert(error.message)
+  } else {
+    isSettingsOpen = false
+    logoutMessage = 'You have been logged out'
+
+    setTimeout(() => {
+      logoutMessage = ''
+    }, 3000)
   }
+}
 
   function loadSavedTheme() {
     const savedTheme = localStorage.getItem('joyering-theme')
@@ -932,6 +939,13 @@ async function syncUserAndState(session) {
         </div>
       </div>
     {/if}
+
+    {#if logoutMessage}
+  <div class="toast-message">
+    {logoutMessage}
+  </div>
+{/if}
+
   </div>
 {/if}
 
@@ -1549,6 +1563,27 @@ async function syncUserAndState(session) {
     color: white;
     cursor: pointer;
   }
+
+  .toast-message {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.85);
+  color: white;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  z-index: 2000;
+  animation: fadeInOut 3s ease;
+}
+
+@keyframes fadeInOut {
+  0% { opacity:0; transform:translate(-50%,10px); }
+  10% { opacity:1; transform:translate(-50%,0); }
+  90% { opacity:1; }
+  100% { opacity:0; }
+}
 
   @media (max-width: 640px) {
     h1 {
