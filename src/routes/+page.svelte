@@ -234,18 +234,19 @@
   }
 
   async function logout() {
-  const { error } = await supabase.auth.signOut()
 
-  if (error) {
-    alert(error.message)
-  } else {
-    isSettingsOpen = false
-    logoutMessage = 'You have been logged out'
+isSettingsOpen = false
+logoutMessage = 'You have been logged out'
 
-    setTimeout(() => {
-      logoutMessage = ''
-    }, 3000)
-  }
+setTimeout(() => {
+  logoutMessage = ''
+}, 3000)
+
+const { error } = await supabase.auth.signOut()
+
+if (error) {
+  alert(error.message)
+}
 }
 
   function loadSavedTheme() {
@@ -940,13 +941,13 @@ async function syncUserAndState(session) {
       </div>
     {/if}
 
-    {#if logoutMessage}
-  <div class="toast-message">
-    {logoutMessage}
   </div>
 {/if}
 
-  </div>
+{#if logoutMessage}
+<div class="toast-message">
+  {logoutMessage}
+</div>
 {/if}
 
 <style>
