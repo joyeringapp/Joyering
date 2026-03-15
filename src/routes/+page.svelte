@@ -44,6 +44,9 @@
   /** @type {ReturnType<typeof setTimeout> | null} */
   let releaseTimer = null
 
+  /** @type {{ subscription?: { unsubscribe: () => void } } | null} */
+  let authListener = null
+
   /** @type {{ name: string; icon: string; key: string }[]} */
   const categories = [
     { name: 'Love', icon: '/icons/love.png', key: 'love' },
@@ -181,7 +184,7 @@
       collectMoreJoy: 'Recolher mais alegria',
 
       installCardTitle: 'Mantenha Joyering por perto',
-      installCardText: 'Instale Joyering no seu telefone para que ele esteja sempre ali quando um momento feliz aparecer.',
+      installCardText: 'Instale o Joyering no seu telefone para que ele esteja sempre ali quando um momento feliz aparecer.',
       installButton: 'Instalar Joyering',
       notNow: 'Agora não',
 
@@ -456,6 +459,21 @@
     }
   }
 
+  /** @param {import('@supabase/supabase-js').Session | null} session */
+async function syncUserAndState(session) {
+    const nextUser = session?.user ?? null
+    user = nextUser
+
+    if (nextUser) {
+      await ensureJoyStateRow()
+      await loadJoyState()
+    } else {
+      butterflyCount = 0
+      screen = 'garden'
+      isSettingsOpen = false
+    }
+  }
+
   async function restoreSessionAndState() {
     isLoadingSession = true
 
@@ -469,15 +487,7 @@
       return
     }
 
-    user = data.session?.user ?? null
-
-    if (user) {
-      await ensureJoyStateRow()
-      await loadJoyState()
-    } else {
-      butterflyCount = 0
-    }
-
+    await syncUserAndState(data.session ?? null)
     isLoadingSession = false
   }
 
@@ -531,9 +541,20 @@
 
     restoreSessionAndState()
 
+    const { data } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      await syncUserAndState(session)
+      isLoadingSession = false
+    })
+
+    authListener = data
+
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
       window.removeEventListener('appinstalled', handleAppInstalled)
+
+      if (authListener?.subscription) {
+        authListener.subscription.unsubscribe()
+      }
     }
   })
 
@@ -610,6 +631,10 @@
   onDestroy(() => {
     if (resetTimer) clearTimeout(resetTimer)
     if (releaseTimer) clearTimeout(releaseTimer)
+
+    if (authListener?.subscription) {
+      authListener.subscription.unsubscribe()
+    }
   })
 </script>
 
