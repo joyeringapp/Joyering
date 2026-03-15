@@ -30,6 +30,8 @@
 
   let logoutMessage = ''
 
+  let releaseStart = 0
+
   /** @type {any} */
   let installPrompt = null
   let canInstall = false
@@ -622,6 +624,7 @@ async function syncUserAndState(session) {
 
     currentAnimatingCategory = null
     currentPulseNumber = null
+    releaseStart = Date.now()
     isReleasing = true
 
     if (releaseTimer) {
@@ -791,11 +794,11 @@ async function syncUserAndState(session) {
             {#if isReleasing}
               <div class="release-screen">
                 <img
-                  class="release-animation"
-                  src="/animations/release-butterflies.gif"
-                  alt=""
-                  draggable="false"
-                />
+  class="release-animation"
+  src={`/animations/release-butterflies.gif?t=${releaseStart}`}
+  alt=""
+  draggable="false"
+/>
               </div>
             {:else}
               <h1>{t('collectionTitle')}</h1>
