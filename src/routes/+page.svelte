@@ -51,21 +51,23 @@
   /** @type {{ subscription?: { unsubscribe: () => void } } | null} */
   let authListener = null
 
-  /** @type {{ name: string; icon: string; key: string }[]} */
-  const categories = [
-    { name: 'Love', icon: '/icons/love.png', key: 'love' },
-    { name: 'Friends', icon: '/icons/friends.png', key: 'friends' },
-    { name: 'Success', icon: '/icons/success.png', key: 'success' },
-    { name: 'Creativity', icon: '/icons/creativity.png', key: 'creativity' },
-    { name: 'Work', icon: '/icons/work.png', key: 'work' },
-    { name: 'Money', icon: '/icons/money.png', key: 'money' },
-    { name: 'Goodies', icon: '/icons/goodies.png', key: 'goodies' },
-    { name: 'Family', icon: '/icons/family.png', key: 'family' },
-    { name: 'Exercise', icon: '/icons/exercise.png', key: 'exercise' },
-    { name: 'Surprise', icon: '/icons/surprise.png', key: 'surprise' },
-    { name: 'Nature', icon: '/icons/nature.png', key: 'nature' },
-    { name: 'Other', icon: '/icons/other.png', key: 'other' }
-  ]
+  /** @type {{ icon: string; key: string }[]} */
+const categories = [
+  { key: 'love', icon: '/icons/love.png' },
+  { key: 'family', icon: '/icons/family.png' },
+  { key: 'friends', icon: '/icons/friends.png' },
+  { key: 'nature', icon: '/icons/nature.png' },
+
+  { key: 'culture', icon: '/icons/culture.png' },
+  { key: 'create', icon: '/icons/create.png' },
+  { key: 'treats', icon: '/icons/treats.png' },
+  { key: 'surprise', icon: '/icons/surprise.png' },
+
+  { key: 'movement', icon: '/icons/movement.png' },
+  { key: 'work', icon: '/icons/work.png' },
+  { key: 'money', icon: '/icons/money.png' },
+  { key: 'other', icon: '/icons/other.png' }
+]
 
   const tapSoundPaths = [
     '/sounds/fa.mp3',
@@ -99,19 +101,21 @@
       notNow: 'Not now',
 
       categories: {
-        love: 'Love',
-        friends: 'Friends',
-        success: 'Success',
-        creativity: 'Create',
-        work: 'Work',
-        money: 'Money',
-        goodies: 'Treats',
-        family: 'Family',
-        exercise: 'Move',
-        surprise: 'Surprise',
-        nature: 'Nature',
-        other: 'Other'
-      },
+  love: 'Love',
+  family: 'Family',
+  friends: 'Friends',
+  nature: 'Nature',
+
+  culture: 'Culture',
+  create: 'Create',
+  treats: 'Treats',
+  surprise: 'Surprise',
+
+  movement: 'Movement',
+  work: 'Work',
+  money: 'Money',
+  other: 'Other'
+},
 
       settingsTitle: 'Settings',
       themeLabel: 'Theme',
@@ -146,19 +150,21 @@
       notNow: 'Non ora',
 
       categories: {
-        love: 'Amore',
-        friends: 'Amici',
-        success: 'Successo',
-        creativity: 'Crea',
-        work: 'Lavoro',
-        money: 'Soldi',
-        goodies: 'Gioie',
-        family: 'Famiglia',
-        exercise: 'Sport',
-        surprise: 'Sorpresa',
-        nature: 'Natura',
-        other: 'Altro'
-      },
+  love: 'Amore',
+  family: 'Famiglia',
+  friends: 'Amici',
+  nature: 'Natura',
+
+  culture: 'Cultura',
+  create: 'Creare',
+  treats: 'Sfizi',
+  surprise: 'Sorpresa',
+
+  movement: 'Movimento',
+  work: 'Lavoro',
+  money: 'Denaro',
+  other: 'Altro'
+},
 
       settingsTitle: 'Impostazioni',
       themeLabel: 'Tema',
@@ -193,19 +199,21 @@
       notNow: 'Agora não',
 
       categories: {
-        love: 'Amor',
-        friends: 'Amigos',
-        success: 'Sucesso',
-        creativity: 'Criar',
-        work: 'Trabalho',
-        money: 'Dinheiro',
-        goodies: 'Prazer',
-        family: 'Família',
-        exercise: 'Mover',
-        surprise: 'Surpresa',
-        nature: 'Natureza',
-        other: 'Outro'
-      },
+  love: 'Amor',
+  family: 'Família',
+  friends: 'Amigos',
+  nature: 'Natureza',
+
+  culture: 'Cultura',
+  create: 'Criar',
+  treats: 'Delícias',
+  surprise: 'Surpresa',
+
+  movement: 'Movimento',
+  work: 'Trabalho',
+  money: 'Dinheiro',
+  other: 'Outro'
+},
 
       settingsTitle: 'Configurações',
       themeLabel: 'Tema',
@@ -569,8 +577,8 @@ async function syncUserAndState(session) {
   })
 
   /**
-   * @param {{ name: string; icon: string; key: string }} category
-   */
+ * @param {{ icon: string; key: string }} category
+ */
   function handleCategoryTap(category) {
     if (isReleasing || !user) return
 
