@@ -613,31 +613,31 @@ async function syncUserAndState(session) {
   }
 
   function letThemFly() {
-    if (butterflyCount < 21 || isReleasing || !user) return
+  if (butterflyCount < 21 || isReleasing || !user) return
 
-    releaseSound?.play().catch(() => {})
+  releaseSound?.play().catch(() => {})
 
-    if (resetTimer) {
-      clearTimeout(resetTimer)
-      resetTimer = null
-    }
-
-    currentAnimatingCategory = null
-    currentPulseNumber = null
-    releaseStart = Date.now()
-    isReleasing = true
-
-    if (releaseTimer) {
-      clearTimeout(releaseTimer)
-    }
-
-    releaseTimer = setTimeout(async () => {
-      butterflyCount = 0
-      await saveJoyState()
-      isReleasing = false
-      releaseTimer = null
-    }, 3000)
+  if (resetTimer) {
+    clearTimeout(resetTimer)
+    resetTimer = null
   }
+
+  currentAnimatingCategory = null
+  currentPulseNumber = null
+
+  isReleasing = true
+
+  if (releaseTimer) {
+    clearTimeout(releaseTimer)
+  }
+
+  releaseTimer = setTimeout(async () => {
+    butterflyCount = 0
+    await saveJoyState()
+    isReleasing = false
+    releaseTimer = null
+  }, 3000)
+}
 
   onDestroy(() => {
     if (resetTimer) clearTimeout(resetTimer)
@@ -791,16 +791,19 @@ async function syncUserAndState(session) {
           </button>
         {:else}
           <div class="collection-screen">
+
             {#if isReleasing}
-              <div class="release-screen">
-                <img
-  class="release-animation"
-  src={`/animations/release-butterflies.gif?t=${releaseStart}`}
-  alt=""
-  draggable="false"
-/>
-              </div>
-            {:else}
+  <div class="release-screen">
+    {#key isReleasing}
+      <img
+        class="release-animation"
+        src="/animations/release-butterflies.gif"
+        alt=""
+        draggable="false"
+      />
+    {/key}
+  </div>
+{:else}
               <h1>{t('collectionTitle')}</h1>
               <p class="subtitle collection-subtitle">{t('collectionSubtitle')}</p>
 
@@ -1361,6 +1364,10 @@ async function syncUserAndState(session) {
     transform: translateY(-32px);
   }
 
+.release-animation {
+  animation: releaseFade 3s ease-in-out forwards;
+}
+
   .settings-button {
     position: fixed;
     top: calc(env(safe-area-inset-top) + 14px);
@@ -1580,13 +1587,6 @@ async function syncUserAndState(session) {
   font-size: 0.95rem;
   z-index: 2000;
   animation: fadeInOut 3s ease;
-}
-
-@keyframes fadeInOut {
-  0% { opacity:0; transform:translate(-50%,10px); }
-  10% { opacity:1; transform:translate(-50%,0); }
-  90% { opacity:1; }
-  100% { opacity:0; }
 }
 
   @media (max-width: 640px) {
