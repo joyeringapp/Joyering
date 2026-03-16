@@ -30,8 +30,6 @@
 
   let logoutMessage = ''
 
-  let releaseStart = 0
-
   /** @type {any} */
   let installPrompt = null
   let canInstall = false
