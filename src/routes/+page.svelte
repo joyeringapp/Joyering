@@ -52,20 +52,21 @@
   let authListener = null
 
   /** @type {{ icon: string; key: string }[]} */
-const categories = [
+
+  const categories = [
   { key: 'love', icon: '/icons/love.png' },
-  { key: 'family', icon: '/icons/family.png' },
   { key: 'friends', icon: '/icons/friends.png' },
+  { key: 'work', icon: '/icons/work.png' },
   { key: 'nature', icon: '/icons/nature.png' },
 
-  { key: 'culture', icon: '/icons/culture.png' },
-  { key: 'create', icon: '/icons/create.png' },
-  { key: 'treats', icon: '/icons/treats.png' },
+  { key: 'family', icon: '/icons/family.png' },
+  { key: 'money', icon: '/icons/money.png' },
+  { key: 'creativity', icon: '/icons/create.png' },
   { key: 'surprise', icon: '/icons/surprise.png' },
 
-  { key: 'movement', icon: '/icons/movement.png' },
-  { key: 'work', icon: '/icons/work.png' },
-  { key: 'money', icon: '/icons/money.png' },
+  { key: 'culture', icon: '/icons/culture.png' },
+  { key: 'activity', icon: '/icons/movement.png' },
+  { key: 'treats', icon: '/icons/treats.png' },
   { key: 'other', icon: '/icons/other.png' }
 ]
 
@@ -100,20 +101,20 @@ const categories = [
       installButton: 'Install Joyering',
       notNow: 'Not now',
 
-      categories: {
+        categories: {
   love: 'Love',
-  family: 'Family',
   friends: 'Friends',
+  work: 'Work',
   nature: 'Nature',
 
-  culture: 'Culture',
-  create: 'Create',
-  treats: 'Treats',
+  family: 'Family',
+  money: 'Money',
+  creativity: 'Creativity',
   surprise: 'Surprise',
 
-  movement: 'Movement',
-  work: 'Work',
-  money: 'Money',
+  culture: 'Culture',
+  activity: 'Activity',
+  treats: 'Food & Drink',
   other: 'Other'
 },
 
@@ -154,18 +155,18 @@ soundOff: 'Off',
 
       categories: {
   love: 'Amore',
-  family: 'Famiglia',
   friends: 'Amici',
+  work: 'Lavoro',
   nature: 'Natura',
 
-  culture: 'Cultura',
-  create: 'Creare',
-  treats: 'Sfizi',
+  family: 'Famiglia',
+  money: 'Denaro',
+  creativity: 'Creatività',
   surprise: 'Sorpresa',
 
-  movement: 'Movimento',
-  work: 'Lavoro',
-  money: 'Denaro',
+  culture: 'Cultura',
+  activity: 'Attività',
+  treats: 'Cibo e bevande',
   other: 'Altro'
 },
 
@@ -206,18 +207,18 @@ soundOff: 'Off',
 
       categories: {
   love: 'Amor',
-  family: 'Família',
   friends: 'Amigos',
+  work: 'Trabalho',
   nature: 'Natureza',
 
-  culture: 'Cultura',
-  create: 'Criar',
-  treats: 'Delícias',
+  family: 'Família',
+  money: 'Dinheiro',
+  creativity: 'Criatividade',
   surprise: 'Surpresa',
 
-  movement: 'Movimento',
-  work: 'Trabalho',
-  money: 'Dinheiro',
+  culture: 'Cultura',
+  activity: 'Atividade',
+  treats: 'Comida e bebida',
   other: 'Outro'
 },
 
