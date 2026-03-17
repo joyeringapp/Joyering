@@ -82,7 +82,7 @@ const categories = [
       appSubtitle: 'Catch your joyful moments, one butterfly at a time.',
       emailPlaceholder: 'Your email',
       sendLoginLink: 'Send me a login link',
-      installHint: 'Add Joyering to your phone and open it anytime a joyful moment appears.',
+      installHint: 'Your email is only used to access your Joyering account.',
 
       gardenTitle: 'The Joy Garden',
       gardenSubtitle: 'Catch a joyful moment!',
@@ -131,7 +131,7 @@ const categories = [
       appSubtitle: 'Raccogli i tuoi momenti gioiosi, una farfalla alla volta.',
       emailPlaceholder: 'La tua email',
       sendLoginLink: 'Mandami un link di accesso',
-      installHint: 'Aggiungi Joyering al tuo telefono e aprilo ogni volta che arriva un momento gioioso.',
+      installHint: 'La tua email viene usata solo per accedere a Joyering.',
 
       gardenTitle: 'Il Giardino della Gioia',
       gardenSubtitle: 'Cattura un momento gioioso!',
@@ -180,7 +180,7 @@ const categories = [
       appSubtitle: 'Recolha seus momentos felizes, uma borboleta de cada vez.',
       emailPlaceholder: 'Seu e-mail',
       sendLoginLink: 'Envie-me um link de acesso',
-      installHint: 'Adicione o Joyering ao seu telefone e abra sempre que um momento feliz aparecer.',
+      installHint: 'Seu e-mail é usado apenas para acessar o Joyering.',
 
       gardenTitle: 'O Jardim da Alegria',
       gardenSubtitle: 'Capture um momento feliz!',
