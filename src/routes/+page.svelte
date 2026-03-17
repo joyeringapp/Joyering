@@ -23,6 +23,8 @@
   let isSettingsOpen = false
   let theme = 'dark'
 
+  let soundEnabled = true
+
   /** @type {'en' | 'it' | 'pt'} */
   let language = 'en'
 
@@ -120,6 +122,9 @@ const categories = [
       dark: 'Dark',
       light: 'Light',
       languageLabel: 'Language',
+      soundLabel: 'Sound',
+soundOn: 'On',
+soundOff: 'Off',
       logout: 'Log out',
 
       joyfulMomentSingular: 'You have collected 1 joyful moment',
@@ -169,6 +174,9 @@ const categories = [
       dark: 'Scuro',
       light: 'Chiaro',
       languageLabel: 'Lingua',
+      soundLabel: 'Suono',
+soundOn: 'On',
+soundOff: 'Off',
       logout: 'Esci',
 
       joyfulMomentSingular: 'Hai raccolto 1 momento gioioso',
@@ -218,6 +226,9 @@ const categories = [
       dark: 'Escuro',
       light: 'Claro',
       languageLabel: 'Idioma',
+      soundLabel: 'Som',
+soundOn: 'Ligado',
+soundOff: 'Desligado',
       logout: 'Sair',
 
       joyfulMomentSingular: 'Você recolheu 1 momento feliz',
@@ -272,6 +283,16 @@ if (error) {
     theme = newTheme
     localStorage.setItem('joyering-theme', newTheme)
   }
+
+  function loadSavedSoundSetting() {
+  const savedSound = localStorage.getItem('joyering-sound')
+
+  if (savedSound === 'off') {
+    soundEnabled = false
+  } else {
+    soundEnabled = true
+  }
+}
 
   function loadSavedLanguage() {
     const savedLanguage = localStorage.getItem('joyering-language')
@@ -403,6 +424,7 @@ if (error) {
   }
 
   function playRandomTapSound() {
+    if (!soundEnabled) return
     if (!tapSounds.length) return
 
     const index = Math.floor(Math.random() * tapSounds.length)
@@ -509,8 +531,9 @@ async function syncUserAndState(session) {
 
   onMount(() => {
     loadSavedTheme()
-    loadSavedLanguage()
-    setupTapSounds()
+loadSavedLanguage()
+loadSavedSoundSetting()
+setupTapSounds()
 
     preloadImages([
       '/jars/jar-empty.gif',
@@ -614,14 +637,19 @@ async function syncUserAndState(session) {
   }
 
   function openCollection() {
-    screen = 'collection'
+  screen = 'collection'
+
+  if (soundEnabled) {
     jarSound?.play().catch(() => {})
   }
+}
 
   function letThemFly() {
   if (butterflyCount < 21 || isReleasing || !user) return
 
+  if (soundEnabled) {
   releaseSound?.play().catch(() => {})
+}
 
   if (resetTimer) {
     clearTimeout(resetTimer)
@@ -932,6 +960,32 @@ async function syncUserAndState(session) {
             </div>
           </div>
           
+ 
+          
+          <div class="settings-section">
+            <p class="settings-label">{t('soundLabel')}</p>
+          
+            <div class="settings-choice-row">
+              <button
+                class:active-choice={soundEnabled}
+                class="settings-choice"
+                type="button"
+                on:click={() => setSoundEnabled(true)}
+              >
+                {t('soundOn')}
+              </button>
+          
+              <button
+                class:active-choice={!soundEnabled}
+                class="settings-choice"
+                type="button"
+                on:click={() => setSoundEnabled(false)}
+              >
+                {t('soundOff')}
+              </button>
+            </div>
+          </div>
+
           <div class="settings-divider"></div>
           
           <div class="settings-section legal-section">
