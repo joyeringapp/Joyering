@@ -284,6 +284,12 @@ if (error) {
     localStorage.setItem('joyering-theme', newTheme)
   }
 
+  /** @param {boolean} enabled */
+function setSoundEnabled(enabled) {
+  soundEnabled = enabled
+  localStorage.setItem('joyering-sound', enabled ? 'on' : 'off')
+}
+
   function loadSavedSoundSetting() {
   const savedSound = localStorage.getItem('joyering-sound')
 
@@ -987,7 +993,7 @@ setupTapSounds()
           </div>
 
           <div class="settings-divider"></div>
-          
+
           <div class="settings-section legal-section">
             <p class="legal-brand">Joyering™</p>
             <p class="legal-copy">© 2026 Ulrika Torquato</p>
