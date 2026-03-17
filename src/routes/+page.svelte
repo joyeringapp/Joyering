@@ -192,7 +192,7 @@ soundOff: 'Off',
       installHint: 'Seu e-mail é usado apenas para acessar o Joyering.',
 
       gardenTitle: 'O Jardim da Alegria',
-      gardenSubtitle: 'Guarde um momento especial',
+      gardenSubtitle: 'Perceba um momento especial',
       collectionButton: 'Ver sua coleção',
 
       collectionTitle: 'Momentos guardados',
