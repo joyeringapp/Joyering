@@ -92,7 +92,7 @@
       collectionButton: 'See Your Collection',
 
       collectionTitle: 'Collected Joy',
-      collectionSubtitle: 'Release when you reach 21!',
+      collectionSubtitle: 'Release when you reach 21',
       flyButton: 'Let Them Fly!',
       collectMoreJoy: 'Collect More Joy',
 
@@ -114,7 +114,7 @@
 
   culture: 'Culture',
   activity: 'Activity',
-  treats: 'Food & Drink',
+  treats: 'Treats',
   other: 'Other'
 },
 
@@ -134,19 +134,19 @@ soundOff: 'Off',
 
     it: {
       loading: 'Caricamento...',
-      appSubtitle: 'Raccogli i tuoi momenti gioiosi, una farfalla alla volta.',
+      appSubtitle: 'Cattura i tuoi momenti gioiosi, una farfalla alla volta.',
       emailPlaceholder: 'La tua email',
       sendLoginLink: 'Mandami un link di accesso',
       installHint: 'La tua email viene usata solo per accedere a Joyering.',
 
       gardenTitle: 'Il Giardino della Gioia',
-      gardenSubtitle: 'Accogli un momento gioioso',
+      gardenSubtitle: 'Cattura un momento gioioso',
       collectionButton: 'Guarda la tua collezione',
 
-      collectionTitle: 'Momenti raccolti',
-      collectionSubtitle: 'Lasciale volare quando arrivi a 21!',
+      collectionTitle: 'Gioie raccolte',
+      collectionSubtitle: 'Lasciale volare quando arrivi a 21',
       flyButton: 'Lasciale volare!',
-      collectMoreJoy: 'Raccogli altri momenti',
+      collectMoreJoy: 'Raccogli altre gioie',
 
       installCardTitle: 'Tieni Joyering vicino',
       installCardText: 'Installa Joyering sul tuo telefono così sarà sempre lì quando arriva un momento gioioso.',
@@ -166,7 +166,7 @@ soundOff: 'Off',
 
   culture: 'Cultura',
   activity: 'Attività',
-  treats: 'Cibo e bevande',
+  treats: 'Sfizi',
   other: 'Altro'
 },
 
@@ -186,22 +186,22 @@ soundOff: 'Off',
 
     pt: {
       loading: 'Carregando...',
-      appSubtitle: 'Guarde seus momentos felizes, uma borboleta de cada vez.',
+      appSubtitle: 'Capture seus momentos de alegria, uma borboleta de cada vez.',
       emailPlaceholder: 'Seu e-mail',
       sendLoginLink: 'Envie-me um link de acesso',
       installHint: 'Seu e-mail é usado apenas para acessar o Joyering.',
 
       gardenTitle: 'O Jardim da Alegria',
-      gardenSubtitle: 'Perceba um momento especial',
+      gardenSubtitle: 'Capture um momento de alegria',
       collectionButton: 'Ver sua coleção',
 
-      collectionTitle: 'Momentos guardados',
-      collectionSubtitle: 'Solte quando chegar a 21!',
+      collectionTitle: 'Momentos colecionados',
+      collectionSubtitle: 'Solte quando chegar a 21',
       flyButton: 'Deixe voar!',
-      collectMoreJoy: 'Guardar mais momentos',
+      collectMoreJoy: 'Colecionar mais momentos',
 
       installCardTitle: 'Mantenha Joyering por perto',
-      installCardText: 'Instale o Joyering no seu telefone para que ele esteja sempre ali quando um momento feliz aparecer.',
+      installCardText: 'Instale o Joyering no seu telefone para que ele esteja sempre ali quando um momento de alegria acontecer.',
       installButton: 'Instalar Joyering',
       notNow: 'Agora não',
 
@@ -218,7 +218,7 @@ soundOff: 'Off',
 
   culture: 'Cultura',
   activity: 'Atividade',
-  treats: 'Comida e bebida',
+  treats: 'Delícias',
   other: 'Outro'
 },
 
