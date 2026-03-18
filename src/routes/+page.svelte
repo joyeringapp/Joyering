@@ -581,72 +581,96 @@ async function syncUserAndState(session) {
   }
 
   onMount(() => {
-    loadSavedTheme()
-loadSavedLanguage()
-loadSavedSoundSetting()
-setupTapSounds()
+  /** @type {((e: any) => void) | null} */
+  let handleBeforeInstallPrompt = null
 
-    preloadImages([
-      '/jars/jar-empty.gif',
-      '/jars/jar-1.gif',
-      '/jars/jar-2.gif',
-      '/jars/jar-3.gif',
-      '/jars/jar-4.gif',
-      '/jars/jar-5.gif',
-      '/jars/jar-6.gif',
-      '/jars/jar-7.gif',
-      '/jars/jar-8.gif',
-      '/jars/jar-mid.gif',
-      '/jars/jar-full.gif',
-      '/animations/release-butterflies.gif'
-    ])
+  /** @type {(() => void) | null} */
+  let handleAppInstalled = null
 
-    for (let i = 1; i <= 10; i++) {
-      const img = new Image()
-      img.src = `/butterflies/pulse${i}.gif`
-    }
+  const init = async () => {
+    try {
+      loadSavedTheme()
+      loadSavedLanguage()
+      loadSavedSoundSetting()
+      setupTapSounds()
 
-    const dismissed = localStorage.getItem('joyering-install-dismissed')
+      preloadImages([
+        '/jars/jar-empty.gif',
+        '/jars/jar-1.gif',
+        '/jars/jar-2.gif',
+        '/jars/jar-3.gif',
+        '/jars/jar-4.gif',
+        '/jars/jar-5.gif',
+        '/jars/jar-6.gif',
+        '/jars/jar-7.gif',
+        '/jars/jar-8.gif',
+        '/jars/jar-mid.gif',
+        '/jars/jar-full.gif',
+        '/animations/release-butterflies.gif'
+      ])
 
-    if (isStandaloneMode() || dismissed === 'true') {
-      showInstallCard = false
-    }
-
-    /** @param {any} e */
-    const handleBeforeInstallPrompt = (e) => {
-      e.preventDefault()
-      installPrompt = e
-      canInstall = true
-    }
-
-    const handleAppInstalled = () => {
-      installPrompt = null
-      canInstall = false
-      showInstallCard = false
-      localStorage.setItem('joyering-install-dismissed', 'true')
-    }
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
-    window.addEventListener('appinstalled', handleAppInstalled)
-
-    restoreSessionAndState()
-
-    const { data } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      await syncUserAndState(session)
-      isLoadingSession = false
-    })
-
-    authListener = data
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
-      window.removeEventListener('appinstalled', handleAppInstalled)
-
-      if (authListener?.subscription) {
-        authListener.subscription.unsubscribe()
+      for (let i = 1; i <= 10; i++) {
+        const img = new Image()
+        img.src = `/butterflies/pulse${i}.gif`
       }
+
+      const dismissed = localStorage.getItem('joyering-install-dismissed')
+
+      if (isStandaloneMode() || dismissed === 'true') {
+        showInstallCard = false
+      }
+
+      handleBeforeInstallPrompt = (e) => {
+        e.preventDefault()
+        installPrompt = e
+        canInstall = true
+      }
+
+      handleAppInstalled = () => {
+        installPrompt = null
+        canInstall = false
+        showInstallCard = false
+        localStorage.setItem('joyering-install-dismissed', 'true')
+      }
+
+      window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+      window.addEventListener('appinstalled', handleAppInstalled)
+
+      await restoreSessionAndState()
+
+      const { data } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        try {
+          await syncUserAndState(session)
+        } catch (error) {
+          console.error('Error in auth state change:', error)
+        } finally {
+          isLoadingSession = false
+        }
+      })
+
+      authListener = data
+    } catch (error) {
+      console.error('Error during app startup:', error)
+      isLoadingSession = false
     }
-  })
+  }
+
+  init()
+
+  return () => {
+    if (handleBeforeInstallPrompt) {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+    }
+
+    if (handleAppInstalled) {
+      window.removeEventListener('appinstalled', handleAppInstalled)
+    }
+
+    if (authListener?.subscription) {
+      authListener.subscription.unsubscribe()
+    }
+  }
+})
 
   /**
  * @param {{ icon: string; key: string }} category
@@ -1509,10 +1533,6 @@ setupTapSounds()
     -webkit-user-select: none;
     transform: translateY(-32px);
   }
-
-.release-animation {
-  animation: releaseFade 3s ease-in-out forwards;
-}
 
   .settings-button {
     position: fixed;
