@@ -82,10 +82,10 @@
   const translations = {
     en: {
       loading: 'Loading...',
-      appSubtitle: 'Catch your joyful moments, one butterfly at a time.',
+      appSubtitle: 'A space for your joyful moments.',
       emailPlaceholder: 'Your email',
-      sendLoginLink: 'Send me a login link',
-      installHint: 'Your email is only used to access your Joyering account.',
+      sendLoginLink: 'Send login link',
+      installHint: 'Your email is only used to access Joyering.',
 
       gardenTitle: 'The Joy Garden',
       gardenSubtitle: 'Catch a joyful moment',
@@ -97,7 +97,7 @@
       collectMoreJoy: 'Collect More Joy',
 
       installCardTitle: 'Keep Joyering close',
-      installCardText: 'Install Joyering on your phone so it’s always there when a joyful moment appears.',
+      installCardText: 'Add Joyering to your phone for easy access anytime.',
       installButton: 'Install Joyering',
       notNow: 'Not now',
 
@@ -134,10 +134,10 @@ soundOff: 'Off',
 
     it: {
       loading: 'Caricamento...',
-      appSubtitle: 'Cattura i tuoi momenti gioiosi, una farfalla alla volta.',
+      appSubtitle: 'Uno spazio per i tuoi momenti gioiosi.',
       emailPlaceholder: 'La tua email',
-      sendLoginLink: 'Mandami un link di accesso',
-      installHint: 'La tua email viene usata solo per accedere a Joyering.',
+      sendLoginLink: 'Invia il link di accesso',
+      installHint: 'La tua email è usata solo per accedere a Joyering.',
 
       gardenTitle: 'Il Giardino della Gioia',
       gardenSubtitle: 'Cattura un momento gioioso',
@@ -149,7 +149,7 @@ soundOff: 'Off',
       collectMoreJoy: 'Raccogli altre gioie',
 
       installCardTitle: 'Tieni Joyering vicino',
-      installCardText: 'Installa Joyering sul tuo telefono così sarà sempre lì quando arriva un momento gioioso.',
+      installCardText: 'Aggiungi Joyering al telefono per averlo sempre a portata di mano.',
       installButton: 'Installa Joyering',
       notNow: 'Non ora',
 
@@ -186,10 +186,10 @@ soundOff: 'Off',
 
     pt: {
       loading: 'Carregando...',
-      appSubtitle: 'Capture seus momentos de alegria, uma borboleta de cada vez.',
+      appSubtitle: 'Um espaço para seus momentos de alegria.',
       emailPlaceholder: 'Seu e-mail',
-      sendLoginLink: 'Envie-me um link de acesso',
-      installHint: 'Seu e-mail é usado apenas para acessar o Joyering.',
+      sendLoginLink: 'Enviar link de acesso',
+      installHint: 'Seu e-mail é usado apenas para acessar Joyering.',
 
       gardenTitle: 'O Jardim da Alegria',
       gardenSubtitle: 'Capture um momento de alegria',
@@ -201,7 +201,7 @@ soundOff: 'Off',
       collectMoreJoy: 'Colecionar mais momentos',
 
       installCardTitle: 'Mantenha Joyering por perto',
-      installCardText: 'Instale o Joyering no seu telefone para que ele esteja sempre ali quando um momento de alegria acontecer.',
+      installCardText: 'Adicione Joyering ao celular para ter acesso fácil a qualquer momento.',
       installButton: 'Instalar Joyering',
       notNow: 'Agora não',
 
@@ -238,20 +238,32 @@ soundOff: 'Desligado',
   }
 
   async function login() {
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: window.location.origin
-      }
-    })
+  const redirectUrl = `${window.location.origin}?lang=${language}`
 
-    if (error) {
-      alert(error.message)
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: {
+      emailRedirectTo: redirectUrl,
+      data: {
+        language
+      }
+    }
+  })
+
+  if (error) {
+    alert(error.message)
+  } else {
+    if (language === 'it') {
+      alert('Controlla la tua email per il link di accesso!')
+    } else if (language === 'pt') {
+      alert('Verifique seu e-mail para o link de acesso!')
     } else {
       alert('Check your email for the login link!')
-      email = ''
     }
+
+    email = ''
   }
+}
 
   async function logout() {
 
@@ -301,32 +313,64 @@ function setSoundEnabled(enabled) {
   }
 }
 
-  function loadSavedLanguage() {
-    const savedLanguage = localStorage.getItem('joyering-language')
+function getUrlLanguage() {
+  if (typeof window === 'undefined') return null
 
-    if (savedLanguage === 'en' || savedLanguage === 'it' || savedLanguage === 'pt') {
-      language = savedLanguage
-      return
-    }
+  const params = new URLSearchParams(window.location.search)
+  const lang = params.get('lang')
 
-    const browserLang = navigator.language || ''
-
-    if (browserLang.startsWith('it')) {
-      language = 'it'
-    } else if (browserLang.startsWith('pt')) {
-      language = 'pt'
-    } else {
-      language = 'en'
-    }
+  if (lang === 'en' || lang === 'it' || lang === 'pt') {
+    return lang
   }
 
-  /**
-   * @param {'en' | 'it' | 'pt'} newLanguage
-   */
-  function setLanguage(newLanguage) {
-    language = newLanguage
-    localStorage.setItem('joyering-language', newLanguage)
+  return null
+}
+
+function loadSavedLanguage() {
+  // 1. FIRST: check URL (this is what you want!)
+  const urlLanguage = getUrlLanguage()
+
+  if (urlLanguage) {
+    language = urlLanguage
+    localStorage.setItem('joyering-language', urlLanguage)
+    return
   }
+
+  // 2. SECOND: check saved preference
+  const savedLanguage = localStorage.getItem('joyering-language')
+
+  if (savedLanguage === 'en' || savedLanguage === 'it' || savedLanguage === 'pt') {
+    language = savedLanguage
+    return
+  }
+
+  // 3. LAST: fallback to browser
+  const browserLang = navigator.language || ''
+
+  if (browserLang.startsWith('it')) {
+    language = 'it'
+  } else if (browserLang.startsWith('pt')) {
+    language = 'pt'
+  } else {
+    language = 'en'
+  }
+
+  localStorage.setItem('joyering-language', language)
+}
+
+/**
+ * @param {'en' | 'it' | 'pt'} newLanguage
+ */
+function setLanguage(newLanguage) {
+  language = newLanguage
+  localStorage.setItem('joyering-language', newLanguage)
+
+  if (typeof window !== 'undefined') {
+    const url = new URL(window.location.href)
+    url.searchParams.set('lang', newLanguage)
+    window.history.replaceState({}, '', url.toString())
+  }
+}
 
   /** @param {string} key */
   function t(key) {
@@ -1057,61 +1101,72 @@ setupTapSounds()
   }
 
   .auth-card {
-    width: 100%;
-    max-width: 480px;
-    padding: 44px 32px;
-    border-radius: 24px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 24px;
-  }
+  width: 100%;
+  max-width: 460px;
+  padding: 38px 30px 30px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 18px;
+}
 
-  .auth-icon {
-    width: 96px;
-    height: 96px;
-    object-fit: contain;
-    margin-bottom: 4px;
-    user-select: none;
-    pointer-events: none;
-  }
+.auth-icon {
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+  margin-bottom: 2px;
+  user-select: none;
+  pointer-events: none;
+}
 
-  .auth-subtitle {
-    margin: 0;
-    font-size: 1.08rem;
-    line-height: 1.5;
-    opacity: 0.92;
-    max-width: 360px;
-  }
+.auth-card h1 {
+  margin: 0;
+  font-size: 2.2rem;
+  line-height: 1.02;
+  font-weight: 700;
+}
 
-  .auth-form {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
+.auth-subtitle {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.4;
+  opacity: 0.9;
+  max-width: 320px;
+}
 
-  .auth-form input {
-    width: 100%;
-    height: 52px;
-    border: none;
-    border-radius: 12px;
-    padding: 0 16px;
-    font-size: 1rem;
-    outline: none;
-  }
+.auth-form {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 2px;
+}
 
-  .install-hint {
-    margin-top: 10px;
-    font-size: 0.9rem;
-    line-height: 1.4;
-    opacity: 0.75;
-    max-width: 320px;
-    text-align: center;
-  }
+.auth-form input {
+  width: 100%;
+  height: 52px;
+  border: none;
+  border-radius: 12px;
+  padding: 0 16px;
+  font-size: 1rem;
+  outline: none;
+}
+
+.install-hint {
+  width: 100%;
+  max-width: 280px;
+  margin: 6px 0 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  opacity: 0.72;
+  text-align: center;
+}
 
   .app-shell {
     min-height: 100vh;
@@ -1197,12 +1252,38 @@ setupTapSounds()
   }
 
   .auth-form button {
-    width: 100%;
-    min-height: 52px;
-    padding: 0 16px;
-    background: #62c7cf;
-    box-shadow: 0 8px 20px rgba(98, 199, 207, 0.25);
-  }
+  width: 100%;
+  min-height: 52px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+
+  background: #5fbcc3; /* slightly softer than before */
+  color: #ffffff;
+
+  font-size: 1rem;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.auth-form button:hover {
+  background: #52aeb5;
+  transform: translateY(-1px);
+  border-color: rgba(0, 0, 0, 0.35);
+}
+
+.auth-form button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(95, 188, 195, 0.25);
+}
+
+.auth-form button:active {
+  background: #4aa5ac;
+  transform: translateY(0);
+}
 
   .page {
     min-height: 100vh;
@@ -1670,20 +1751,25 @@ setupTapSounds()
     }
 
     .auth-card {
-      max-width: 420px;
-      padding: 36px 22px;
-      gap: 20px;
-    }
+  max-width: 400px;
+  padding: 32px 22px 26px;
+  gap: 16px;
+}
 
-    .auth-icon {
-      width: 84px;
-      height: 84px;
-    }
+.auth-icon {
+  width: 80px;
+  height: 80px;
+}
 
-    .auth-subtitle {
-      font-size: 1rem;
-      max-width: 300px;
-    }
+.auth-card h1 {
+  font-size: 2rem;
+}
+
+.auth-subtitle {
+  font-size: 0.98rem;
+  line-height: 1.38;
+  max-width: 290px;
+}
 
     .page {
       min-height: 100vh;
