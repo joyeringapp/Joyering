@@ -879,14 +879,12 @@ setupTapSounds()
 
             {#if isReleasing}
   <div class="release-screen">
-    {#key isReleasing}
-      <img
-        class="release-animation"
-        src="/animations/release-butterflies.gif"
-        alt=""
-        draggable="false"
-      />
-    {/key}
+    <img
+      class="release-animation"
+      src="/animations/release-butterflies.gif"
+      alt=""
+      draggable="false"
+    />
   </div>
 {:else}
               <h1>{t('collectionTitle')}</h1>
