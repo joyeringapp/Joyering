@@ -467,7 +467,7 @@ function setLanguage(newLanguage) {
 
     releaseSound = new Audio('/sounds/release.mp3')
     releaseSound.preload = 'auto'
-    releaseSound.volume = 0.45
+    releaseSound.volume = 0.6
   }
 
   function playRandomTapSound() {
