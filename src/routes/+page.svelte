@@ -747,6 +747,7 @@ async function syncUserAndState(session) {
       authListener.subscription.unsubscribe()
     }
   })
+  
 </script>
 
 <svelte:head>
