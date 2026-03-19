@@ -461,7 +461,7 @@ function setLanguage(newLanguage) {
     tapSounds = tapSoundPaths.map((path) => {
       const audio = new Audio(path)
       audio.preload = 'auto'
-      audio.volume = 0.35
+      audio.volume = 0.22
       return audio
     })
 
@@ -476,7 +476,7 @@ function setLanguage(newLanguage) {
 
     const index = Math.floor(Math.random() * tapSounds.length)
     const sound = /** @type {HTMLAudioElement} */ (tapSounds[index].cloneNode())
-    sound.volume = 0.35
+    sound.volume = 0.22
     sound.play().catch(() => {})
   }
 
