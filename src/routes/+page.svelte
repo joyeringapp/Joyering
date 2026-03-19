@@ -126,6 +126,7 @@
       soundLabel: 'Sound',
 soundOn: 'On',
 soundOff: 'Off',
+accountLabel: 'Account',
       logout: 'Log out',
 
       joyfulMomentSingular: 'You have collected 1 joyful moment',
@@ -178,6 +179,7 @@ soundOff: 'Off',
       soundLabel: 'Suono',
 soundOn: 'On',
 soundOff: 'Off',
+accountLabel: 'Account',
       logout: 'Esci',
 
       joyfulMomentSingular: 'Hai raccolto 1 momento gioioso',
@@ -230,6 +232,7 @@ soundOff: 'Off',
       soundLabel: 'Som',
 soundOn: 'Ligado',
 soundOff: 'Desligado',
+accountLabel: 'Conta',
       logout: 'Sair',
 
       joyfulMomentSingular: 'Você recolheu 1 momento especial',
@@ -1061,6 +1064,13 @@ async function syncUserAndState(session) {
 
           <div class="settings-divider"></div>
 
+          <div class="settings-section account-section">
+            <p class="settings-label">{t('accountLabel')}</p>
+            <p class="account-email">{user?.email}</p>
+          </div>
+          
+          <div class="settings-divider"></div>
+          
           <div class="settings-section legal-section">
             <p class="legal-brand">Joyering™</p>
             <p class="legal-copy">© 2026 Ulrika Torquato</p>
@@ -1069,13 +1079,13 @@ async function syncUserAndState(session) {
           
           <div class="settings-divider"></div>
           
-<button
-  class="settings-logout"
-  type="button"
-  on:click={logout}
->
-  {t('logout')}
-</button>
+          <button
+            class="settings-logout"
+            type="button"
+            on:click={logout}
+          >
+            {t('logout')}
+          </button>
         </div>
       </div>
     {/if}
@@ -1579,6 +1589,19 @@ async function syncUserAndState(session) {
     padding: 24px;
     z-index: 1100;
   }
+
+  .account-section {
+  text-align: center;
+}
+
+.account-email {
+  margin: 4px 0 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  font-weight: 600;
+  word-break: break-word;
+  opacity: 0.95;
+}
 
   .legal-section {
   text-align: center;
