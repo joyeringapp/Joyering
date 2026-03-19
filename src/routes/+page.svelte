@@ -12,9 +12,6 @@
   let tapSounds = []
 
   /** @type {HTMLAudioElement | null} */
-  let jarSound = null
-
-  /** @type {HTMLAudioElement | null} */
   let releaseSound = null
 
   let butterflyCount = 0
@@ -468,10 +465,6 @@ function setLanguage(newLanguage) {
       return audio
     })
 
-    jarSound = new Audio('/sounds/jar.mp3')
-    jarSound.preload = 'auto'
-    jarSound.volume = 0.35
-
     releaseSound = new Audio('/sounds/release.mp3')
     releaseSound.preload = 'auto'
     releaseSound.volume = 0.45
@@ -716,11 +709,6 @@ async function syncUserAndState(session) {
 
   function openCollection() {
   screen = 'collection'
-
-  if (soundEnabled) {
-    jarSound?.play().catch(() => {})
-  }
-}
 
   function letThemFly() {
   if (butterflyCount < 21 || isReleasing || !user) return
