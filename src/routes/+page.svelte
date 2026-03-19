@@ -711,12 +711,12 @@ async function syncUserAndState(session) {
   screen = 'collection'
 }
 
-  function letThemFly() {
+function letThemFly() {
   if (butterflyCount < 21 || isReleasing || !user) return
 
   if (soundEnabled) {
-  releaseSound?.play().catch(() => {})
-}
+    releaseSound?.play().catch(() => {})
+  }
 
   if (resetTimer) {
     clearTimeout(resetTimer)
@@ -732,11 +732,11 @@ async function syncUserAndState(session) {
     clearTimeout(releaseTimer)
   }
 
-  releaseTimer = setTimeout(async () => {
+  releaseTimer = setTimeout(() => {
     butterflyCount = 0
-    await saveJoyState()
     isReleasing = false
     releaseTimer = null
+    saveJoyState()
   }, 3000)
 }
 
