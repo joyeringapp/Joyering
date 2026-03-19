@@ -67,13 +67,13 @@
   { key: 'other', icon: '/icons/other.png' }
 ]
 
-  const tapSoundPaths = [
-    '/sounds/fa.mp3',
-    '/sounds/la.mp3',
-    '/sounds/re.mp3',
-    '/sounds/re2.mp3',
-    '/sounds/si.mp3'
-  ]
+const tapSoundPaths = [
+  '/sounds/tap1.mp3',
+  '/sounds/tap2.mp3',
+  '/sounds/tap3.mp3',
+  '/sounds/tap4.mp3',
+  '/sounds/tap5.mp3'
+]
 
   /** @type {Record<string, any>} */
   const translations = {
@@ -709,6 +709,7 @@ async function syncUserAndState(session) {
 
   function openCollection() {
   screen = 'collection'
+}
 
   function letThemFly() {
   if (butterflyCount < 21 || isReleasing || !user) return
@@ -747,7 +748,7 @@ async function syncUserAndState(session) {
       authListener.subscription.unsubscribe()
     }
   })
-  
+
 </script>
 
 <svelte:head>
