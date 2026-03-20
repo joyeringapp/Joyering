@@ -5,6 +5,9 @@
   let email = ''
   let isLoadingSession = true
 
+let hasAcceptedLegal = false
+let legalError = ''
+
   /** @type {import('@supabase/supabase-js').User | null} */
   let user = null
 
@@ -84,6 +87,10 @@ const tapSoundPaths = [
       sendLoginLink: 'Send login link',
       installHint: 'Your email is only used to access Joyering.',
 
+      legalError: 'Please accept the Privacy Policy and Terms and Conditions to continue.',
+  privacyLabel: 'Privacy Policy',
+  termsLabel: 'Terms and Conditions',
+
       gardenTitle: 'The Joy Garden',
       gardenSubtitle: 'Catch a joyful moment',
       collectionButton: 'See Your Collection',
@@ -136,6 +143,10 @@ accountLabel: 'Account',
       emailPlaceholder: 'La tua email',
       sendLoginLink: 'Invia il link di accesso',
       installHint: 'La tua email è usata solo per accedere a Joyering.',
+
+      legalError: 'Per favore, accetta l’Informativa sulla Privacy e i Termini e Condizioni per continuare.',
+privacyLabel: 'Informativa sulla Privacy',
+termsLabel: 'Termini e Condizioni',
 
       gardenTitle: 'Il Giardino della Gioia',
       gardenSubtitle: 'Cattura un momento gioioso',
@@ -190,6 +201,10 @@ accountLabel: 'Account',
       sendLoginLink: 'Enviar link de acesso',
       installHint: 'Seu e-mail é usado apenas para acessar Joyering.',
 
+      legalError: 'Por favor, aceite a Política de Privacidade e os Termos e Condições para continuar.',
+privacyLabel: 'Política de Privacidade',
+termsLabel: 'Termos e Condições',
+
       gardenTitle: 'O Jardim da Alegria',
       gardenSubtitle: 'Capture um momento de alegria',
       collectionButton: 'Ver sua coleção',
@@ -238,6 +253,15 @@ accountLabel: 'Conta',
   }
 
   async function login() {
+  legalError = ''
+
+  if (!email.trim()) return
+
+  if (!hasAcceptedLegal) {
+    legalError = t('legalError')
+    return
+  }
+
   const redirectUrl = `${window.location.origin}?lang=${language}`
 
   const { error } = await supabase.auth.signInWithOtp({
@@ -262,6 +286,7 @@ accountLabel: 'Conta',
     }
 
     email = ''
+    hasAcceptedLegal = false
   }
 }
 
@@ -792,11 +817,42 @@ function letThemFly() {
           placeholder={t('emailPlaceholder')}
           bind:value={email}
         />
-
-        <button on:click={login}>
+      
+        <label class="legal-consent">
+          <input
+            type="checkbox"
+            bind:checked={hasAcceptedLegal}
+            on:change={() => (legalError = '')}
+          />
+      
+          <span>
+            {#if language === 'it'}
+              Accetto l’
+              <a href="/it/privacy-policy" target="_blank" rel="noopener noreferrer">{t('privacyLabel')}</a>
+              e i
+              <a href="/it/terms-and-conditions" target="_blank" rel="noopener noreferrer">{t('termsLabel')}</a>.
+            {:else if language === 'pt'}
+              Concordo com a
+              <a href="/pt/privacy-policy" target="_blank" rel="noopener noreferrer">{t('privacyLabel')}</a>
+              e os
+              <a href="/pt/terms-and-conditions" target="_blank" rel="noopener noreferrer">{t('termsLabel')}</a>.
+            {:else}
+              I agree to the
+              <a href="/privacy-policy" target="_blank" rel="noopener noreferrer">{t('privacyLabel')}</a>
+              and
+              <a href="/terms-and-conditions" target="_blank" rel="noopener noreferrer">{t('termsLabel')}</a>.
+            {/if}
+          </span>
+        </label>
+      
+        {#if legalError}
+          <p class="legal-error">{legalError}</p>
+        {/if}
+      
+        <button on:click={login} disabled={!email.trim()}>
           {t('sendLoginLink')}
         </button>
-
+      
         <p class="install-hint">
           {t('installHint')}
         </p>
@@ -1178,6 +1234,49 @@ function letThemFly() {
   padding: 0 16px;
   font-size: 1rem;
   outline: none;
+}
+
+.legal-consent {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  text-align: left;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.82);
+  margin-top: 2px;
+}
+
+.legal-consent input[type='checkbox'] {
+  margin-top: 2px;
+  flex: 0 0 auto;
+  accent-color: #62c7cf;
+  cursor: pointer;
+}
+
+.legal-consent a {
+  color: #8adbe1;
+  text-decoration: none;
+}
+
+.legal-consent a:hover {
+  text-decoration: underline;
+}
+
+.legal-error {
+  width: 100%;
+  margin: -2px 0 0;
+  font-size: 0.84rem;
+  line-height: 1.4;
+  color: #ff9a9a;
+  text-align: left;
+}
+
+.auth-form button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .install-hint {
