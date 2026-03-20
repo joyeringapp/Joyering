@@ -303,52 +303,55 @@ function updateLegalConsentVisibility() {
   }
 }
 
-  async function login() {
-    legalError = ''
+async function login() {
+  legalError = ''
 
-    const normalizedEmail = normalizeEmail(email)
+  const normalizedEmail = normalizeEmail(email)
 
-    if (!normalizedEmail) return
+  if (!normalizedEmail) return
 
-    const alreadyAccepted = hasAcceptedLegalForEmail(normalizedEmail)
+  const alreadyAccepted = hasAcceptedLegalForEmail(normalizedEmail)
 
-    if (!alreadyAccepted && !hasAcceptedLegal) {
-      legalError = t('legalError')
-      return
-    }
-
-    const redirectUrl = `${window.location.origin}?lang=${language}`
-
-    const { error } = await supabase.auth.signInWithOtp({
-      email: normalizedEmail,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          language
-        }
-      }
-    })
-
-    if (error) {
-      alert(error.message)
-    } else {
-      if (!alreadyAccepted) {
-        saveLegalAcceptanceForEmail(normalizedEmail)
-      }
-
-      if (language === 'it') {
-        alert('Controlla la tua email per il link di accesso!')
-      } else if (language === 'pt') {
-        alert('Verifique seu e-mail para o link de acesso!')
-      } else {
-        alert('Check your email for the login link!')
-      }
-
-      email = ''
-      hasAcceptedLegal = false
-      showLegalConsent = true
-    }
+  if (!alreadyAccepted && !hasAcceptedLegal) {
+    legalError = t('legalError')
+    return
   }
+
+  const redirectUrl =
+    typeof window !== 'undefined'
+      ? `${window.location.origin}?lang=${language}`
+      : ''
+
+  const { error } = await supabase.auth.signInWithOtp({
+    email: normalizedEmail,
+    options: {
+      emailRedirectTo: redirectUrl,
+      data: {
+        language
+      }
+    }
+  })
+
+  if (error) {
+    alert(error.message)
+  } else {
+    if (!alreadyAccepted) {
+      saveLegalAcceptanceForEmail(normalizedEmail)
+    }
+
+    if (language === 'it') {
+      alert('Controlla la tua email per il link di accesso!')
+    } else if (language === 'pt') {
+      alert('Verifique seu e-mail para o link de acesso!')
+    } else {
+      alert('Check your email for the login link!')
+    }
+
+    email = ''
+    hasAcceptedLegal = false
+    showLegalConsent = true
+  }
+}
 
   async function logout() {
     isSettingsOpen = false
