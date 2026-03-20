@@ -303,6 +303,22 @@ function updateLegalConsentVisibility() {
   }
 }
 
+function getInstallDismissCount() {
+  if (typeof window === 'undefined') return 0
+
+  const raw = localStorage.getItem('joyering-install-dismiss-count')
+  const count = Number(raw)
+
+  return Number.isFinite(count) ? count : 0
+}
+
+function increaseInstallDismissCount() {
+  if (typeof window === 'undefined') return
+
+  const nextCount = getInstallDismissCount() + 1
+  localStorage.setItem('joyering-install-dismiss-count', String(nextCount))
+}
+
 async function login() {
   legalError = ''
 
@@ -695,11 +711,11 @@ async function login() {
           img.src = `/butterflies/pulse${i}.gif`
         }
 
-        const dismissed = localStorage.getItem('joyering-install-dismissed')
+        const dismissCount = getInstallDismissCount()
 
-        if (isStandaloneMode() || dismissed === 'true') {
-          showInstallCard = false
-        }
+if (isStandaloneMode() || dismissCount >= 2) {
+  showInstallCard = false
+}
 
         handleBeforeInstallPrompt = (e) => {
           e.preventDefault()
@@ -708,11 +724,10 @@ async function login() {
         }
 
         handleAppInstalled = () => {
-          installPrompt = null
-          canInstall = false
-          showInstallCard = false
-          localStorage.setItem('joyering-install-dismissed', 'true')
-        }
+  installPrompt = null
+  canInstall = false
+  showInstallCard = false
+}
 
         window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
         window.addEventListener('appinstalled', handleAppInstalled)
@@ -956,15 +971,15 @@ async function login() {
                 </button>
 
                 <button
-                  class="install-secondary"
-                  type="button"
-                  on:click={() => {
-                    showInstallCard = false
-                    localStorage.setItem('joyering-install-dismissed', 'true')
-                  }}
-                >
-                  {t('notNow')}
-                </button>
+  class="install-secondary"
+  type="button"
+  on:click={() => {
+    showInstallCard = false
+    increaseInstallDismissCount()
+  }}
+>
+  {t('notNow')}
+</button>
               </div>
             </div>
           {/if}
