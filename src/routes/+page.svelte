@@ -105,6 +105,10 @@
       installButton: 'Install Joyering',
       notNow: 'Not now',
 
+      installHelpIOS: 'To save Joyering on your phone, tap Share, then tap "Add to Home Screen".',
+installHelpAndroid: 'To save Joyering on your phone, open the browser menu and choose "Install app" or "Add to Home screen".',
+installHelpGeneric: 'To save Joyering on your phone, open your browser menu and look for an install option.',
+
       categories: {
         love: 'Love',
         friends: 'Friends',
@@ -162,6 +166,10 @@
       installButton: 'Installa Joyering',
       notNow: 'Non ora',
 
+      installHelpIOS: 'Per salvare Joyering sul tuo telefono, tocca Condividi e poi "Aggiungi alla schermata Home".',
+installHelpAndroid: 'Per salvare Joyering sul tuo telefono, apri il menu del browser e scegli "Installa app" oppure "Aggiungi alla schermata Home".',
+installHelpGeneric: 'Per salvare Joyering sul tuo telefono, apri il menu del browser e cerca l’opzione per installare l’app.',
+
       categories: {
         love: 'Amore',
         friends: 'Amici',
@@ -218,6 +226,10 @@
       installCardText: 'Adicione Joyering ao celular para ter acesso fácil a qualquer momento.',
       installButton: 'Instalar Joyering',
       notNow: 'Agora não',
+
+      installHelpIOS: 'Para salvar o Joyering no seu celular, toque em Compartilhar e depois em "Adicionar à Tela de Início".',
+installHelpAndroid: 'Para salvar o Joyering no seu celular, abra o menu do navegador e escolha "Instalar app" ou "Adicionar à tela inicial".',
+installHelpGeneric: 'Para salvar o Joyering no seu celular, abra o menu do navegador e procure a opção de instalar o app.',
 
       categories: {
         love: 'Amor',
@@ -500,24 +512,24 @@ async function login() {
   }
 
   function showManualInstallHelp() {
-    const ua = window.navigator.userAgent.toLowerCase()
-    const isIOS = /iphone|ipad|ipod/.test(ua)
-    const isAndroid = /android/.test(ua)
-    const isChrome =
-      /chrome/.test(ua) && !/edg|opr|opera|samsungbrowser/.test(ua)
+  const ua = window.navigator.userAgent.toLowerCase()
+  const isIOS = /iphone|ipad|ipod/.test(ua)
+  const isAndroid = /android/.test(ua)
+  const isChrome =
+    /chrome/.test(ua) && !/edg|opr|opera|samsungbrowser/.test(ua)
 
-    if (isIOS) {
-      alert('To save Joyering on your phone, tap Share, then tap "Add to Home Screen".')
-      return
-    }
-
-    if (isAndroid && isChrome) {
-      alert('To save Joyering on your phone, open the browser menu and choose "Install app" or "Add to Home screen".')
-      return
-    }
-
-    alert('To save Joyering on your phone, open your browser menu and look for an install option.')
+  if (isIOS) {
+    alert(t('installHelpIOS'))
+    return
   }
+
+  if (isAndroid && isChrome) {
+    alert(t('installHelpAndroid'))
+    return
+  }
+
+  alert(t('installHelpGeneric'))
+}
 
   async function installJoyering() {
     if (isStandaloneMode()) {
