@@ -5,8 +5,9 @@
   let email = ''
   let isLoadingSession = true
 
-let hasAcceptedLegal = false
-let legalError = ''
+  let hasAcceptedLegal = false
+  let legalError = ''
+  let showLegalConsent = true
 
   /** @type {import('@supabase/supabase-js').User | null} */
   let user = null
@@ -52,31 +53,30 @@ let legalError = ''
   let authListener = null
 
   /** @type {{ icon: string; key: string }[]} */
-
   const categories = [
-  { key: 'love', icon: '/icons/love.png' },
-  { key: 'friends', icon: '/icons/friends.png' },
-  { key: 'work', icon: '/icons/work.png' },
-  { key: 'nature', icon: '/icons/nature.png' },
+    { key: 'love', icon: '/icons/love.png' },
+    { key: 'friends', icon: '/icons/friends.png' },
+    { key: 'work', icon: '/icons/work.png' },
+    { key: 'nature', icon: '/icons/nature.png' },
 
-  { key: 'family', icon: '/icons/family.png' },
-  { key: 'money', icon: '/icons/money.png' },
-  { key: 'creativity', icon: '/icons/create.png' },
-  { key: 'surprise', icon: '/icons/surprise.png' },
+    { key: 'family', icon: '/icons/family.png' },
+    { key: 'money', icon: '/icons/money.png' },
+    { key: 'creativity', icon: '/icons/create.png' },
+    { key: 'surprise', icon: '/icons/surprise.png' },
 
-  { key: 'culture', icon: '/icons/culture.png' },
-  { key: 'activity', icon: '/icons/movement.png' },
-  { key: 'treats', icon: '/icons/treats.png' },
-  { key: 'other', icon: '/icons/other.png' }
-]
+    { key: 'culture', icon: '/icons/culture.png' },
+    { key: 'activity', icon: '/icons/movement.png' },
+    { key: 'treats', icon: '/icons/treats.png' },
+    { key: 'other', icon: '/icons/other.png' }
+  ]
 
-const tapSoundPaths = [
-  '/sounds/tap1.mp3',
-  '/sounds/tap2.mp3',
-  '/sounds/tap3.mp3',
-  '/sounds/tap4.mp3',
-  '/sounds/tap5.mp3'
-]
+  const tapSoundPaths = [
+    '/sounds/tap1.mp3',
+    '/sounds/tap2.mp3',
+    '/sounds/tap3.mp3',
+    '/sounds/tap4.mp3',
+    '/sounds/tap5.mp3'
+  ]
 
   /** @type {Record<string, any>} */
   const translations = {
@@ -88,8 +88,8 @@ const tapSoundPaths = [
       installHint: 'Your email is only used to access Joyering.',
 
       legalError: 'Please accept the Privacy Policy and Terms and Conditions to continue.',
-  privacyLabel: 'Privacy Policy',
-  termsLabel: 'Terms and Conditions',
+      privacyLabel: 'Privacy Policy',
+      termsLabel: 'Terms and Conditions',
 
       gardenTitle: 'The Joy Garden',
       gardenSubtitle: 'Catch a joyful moment',
@@ -105,22 +105,22 @@ const tapSoundPaths = [
       installButton: 'Install Joyering',
       notNow: 'Not now',
 
-        categories: {
-  love: 'Love',
-  friends: 'Friends',
-  work: 'Work',
-  nature: 'Nature',
+      categories: {
+        love: 'Love',
+        friends: 'Friends',
+        work: 'Work',
+        nature: 'Nature',
 
-  family: 'Family',
-  money: 'Money',
-  creativity: 'Creativity',
-  surprise: 'Surprise',
+        family: 'Family',
+        money: 'Money',
+        creativity: 'Creativity',
+        surprise: 'Surprise',
 
-  culture: 'Culture',
-  activity: 'Activity',
-  treats: 'Treats',
-  other: 'Other'
-},
+        culture: 'Culture',
+        activity: 'Activity',
+        treats: 'Treats',
+        other: 'Other'
+      },
 
       settingsTitle: 'Settings',
       themeLabel: 'Theme',
@@ -128,9 +128,9 @@ const tapSoundPaths = [
       light: 'Light',
       languageLabel: 'Language',
       soundLabel: 'Sound',
-soundOn: 'On',
-soundOff: 'Off',
-accountLabel: 'Account',
+      soundOn: 'On',
+      soundOff: 'Off',
+      accountLabel: 'Account',
       logout: 'Log out',
 
       joyfulMomentSingular: 'You have collected 1 joyful moment',
@@ -145,8 +145,8 @@ accountLabel: 'Account',
       installHint: 'La tua email è usata solo per accedere a Joyering.',
 
       legalError: 'Per favore, accetta l’Informativa sulla Privacy e i Termini e Condizioni per continuare.',
-privacyLabel: 'Informativa sulla Privacy',
-termsLabel: 'Termini e Condizioni',
+      privacyLabel: 'Informativa sulla Privacy',
+      termsLabel: 'Termini e Condizioni',
 
       gardenTitle: 'Il Giardino della Gioia',
       gardenSubtitle: 'Cattura un momento gioioso',
@@ -163,21 +163,21 @@ termsLabel: 'Termini e Condizioni',
       notNow: 'Non ora',
 
       categories: {
-  love: 'Amore',
-  friends: 'Amici',
-  work: 'Lavoro',
-  nature: 'Natura',
+        love: 'Amore',
+        friends: 'Amici',
+        work: 'Lavoro',
+        nature: 'Natura',
 
-  family: 'Famiglia',
-  money: 'Denaro',
-  creativity: 'Creatività',
-  surprise: 'Sorpresa',
+        family: 'Famiglia',
+        money: 'Denaro',
+        creativity: 'Creatività',
+        surprise: 'Sorpresa',
 
-  culture: 'Cultura',
-  activity: 'Attività',
-  treats: 'Sfizi',
-  other: 'Altro'
-},
+        culture: 'Cultura',
+        activity: 'Attività',
+        treats: 'Sfizi',
+        other: 'Altro'
+      },
 
       settingsTitle: 'Impostazioni',
       themeLabel: 'Tema',
@@ -185,9 +185,9 @@ termsLabel: 'Termini e Condizioni',
       light: 'Chiaro',
       languageLabel: 'Lingua',
       soundLabel: 'Suono',
-soundOn: 'On',
-soundOff: 'Off',
-accountLabel: 'Account',
+      soundOn: 'On',
+      soundOff: 'Off',
+      accountLabel: 'Account',
       logout: 'Esci',
 
       joyfulMomentSingular: 'Hai raccolto 1 momento gioioso',
@@ -202,8 +202,8 @@ accountLabel: 'Account',
       installHint: 'Seu e-mail é usado apenas para acessar Joyering.',
 
       legalError: 'Por favor, aceite a Política de Privacidade e os Termos e Condições para continuar.',
-privacyLabel: 'Política de Privacidade',
-termsLabel: 'Termos e Condições',
+      privacyLabel: 'Política de Privacidade',
+      termsLabel: 'Termos e Condições',
 
       gardenTitle: 'O Jardim da Alegria',
       gardenSubtitle: 'Capture um momento de alegria',
@@ -220,21 +220,21 @@ termsLabel: 'Termos e Condições',
       notNow: 'Agora não',
 
       categories: {
-  love: 'Amor',
-  friends: 'Amigos',
-  work: 'Trabalho',
-  nature: 'Natureza',
+        love: 'Amor',
+        friends: 'Amigos',
+        work: 'Trabalho',
+        nature: 'Natureza',
 
-  family: 'Família',
-  money: 'Dinheiro',
-  creativity: 'Criatividade',
-  surprise: 'Surpresa',
+        family: 'Família',
+        money: 'Dinheiro',
+        creativity: 'Criatividade',
+        surprise: 'Surpresa',
 
-  culture: 'Cultura',
-  activity: 'Atividade',
-  treats: 'Delícias',
-  other: 'Outro'
-},
+        culture: 'Cultura',
+        activity: 'Atividade',
+        treats: 'Delícias',
+        other: 'Outro'
+      },
 
       settingsTitle: 'Configurações',
       themeLabel: 'Tema',
@@ -242,9 +242,9 @@ termsLabel: 'Termos e Condições',
       light: 'Claro',
       languageLabel: 'Idioma',
       soundLabel: 'Som',
-soundOn: 'Ligado',
-soundOff: 'Desligado',
-accountLabel: 'Conta',
+      soundOn: 'Ligado',
+      soundOff: 'Desligado',
+      accountLabel: 'Conta',
       logout: 'Sair',
 
       joyfulMomentSingular: 'Você recolheu 1 momento especial',
@@ -252,59 +252,118 @@ accountLabel: 'Conta',
     }
   }
 
-  async function login() {
-  legalError = ''
+  /** @param {string} value */
+function normalizeEmail(value) {
+  return value.trim().toLowerCase()
+}
 
-  if (!email.trim()) return
+function getAcceptedEmails() {
+  if (typeof window === 'undefined') return []
 
-  if (!hasAcceptedLegal) {
-    legalError = t('legalError')
-    return
+  try {
+    const raw = localStorage.getItem('joyering-legal-accepted-emails')
+    if (!raw) return []
+
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
   }
+}
 
-  const redirectUrl = `${window.location.origin}?lang=${language}`
+/** @param {string} value */
+function hasAcceptedLegalForEmail(value) {
+  const normalized = normalizeEmail(value)
+  if (!normalized) return false
 
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: {
-      emailRedirectTo: redirectUrl,
-      data: {
-        language
-      }
-    }
-  })
+  return getAcceptedEmails().includes(normalized)
+}
 
-  if (error) {
-    alert(error.message)
+/** @param {string} value */
+function saveLegalAcceptanceForEmail(value) {
+  const normalized = normalizeEmail(value)
+  if (!normalized || typeof window === 'undefined') return
+
+  const emails = getAcceptedEmails()
+
+  if (!emails.includes(normalized)) {
+    emails.push(normalized)
+    localStorage.setItem('joyering-legal-accepted-emails', JSON.stringify(emails))
+  }
+}
+
+function updateLegalConsentVisibility() {
+  showLegalConsent = !hasAcceptedLegalForEmail(email)
+
+  if (!showLegalConsent) {
+    hasAcceptedLegal = true
+    legalError = ''
   } else {
-    if (language === 'it') {
-      alert('Controlla la tua email per il link di accesso!')
-    } else if (language === 'pt') {
-      alert('Verifique seu e-mail para o link de acesso!')
-    } else {
-      alert('Check your email for the login link!')
-    }
-
-    email = ''
     hasAcceptedLegal = false
   }
 }
 
+  async function login() {
+    legalError = ''
+
+    const normalizedEmail = normalizeEmail(email)
+
+    if (!normalizedEmail) return
+
+    const alreadyAccepted = hasAcceptedLegalForEmail(normalizedEmail)
+
+    if (!alreadyAccepted && !hasAcceptedLegal) {
+      legalError = t('legalError')
+      return
+    }
+
+    const redirectUrl = `${window.location.origin}?lang=${language}`
+
+    const { error } = await supabase.auth.signInWithOtp({
+      email: normalizedEmail,
+      options: {
+        emailRedirectTo: redirectUrl,
+        data: {
+          language
+        }
+      }
+    })
+
+    if (error) {
+      alert(error.message)
+    } else {
+      if (!alreadyAccepted) {
+        saveLegalAcceptanceForEmail(normalizedEmail)
+      }
+
+      if (language === 'it') {
+        alert('Controlla la tua email per il link di accesso!')
+      } else if (language === 'pt') {
+        alert('Verifique seu e-mail para o link de acesso!')
+      } else {
+        alert('Check your email for the login link!')
+      }
+
+      email = ''
+      hasAcceptedLegal = false
+      showLegalConsent = true
+    }
+  }
+
   async function logout() {
+    isSettingsOpen = false
+    logoutMessage = 'You have been logged out'
 
-isSettingsOpen = false
-logoutMessage = 'You have been logged out'
+    setTimeout(() => {
+      logoutMessage = ''
+    }, 3000)
 
-setTimeout(() => {
-  logoutMessage = ''
-}, 3000)
+    const { error } = await supabase.auth.signOut()
 
-const { error } = await supabase.auth.signOut()
-
-if (error) {
-  alert(error.message)
-}
-}
+    if (error) {
+      alert(error.message)
+    }
+  }
 
   function loadSavedTheme() {
     const savedTheme = localStorage.getItem('joyering-theme')
@@ -323,79 +382,76 @@ if (error) {
   }
 
   /** @param {boolean} enabled */
-function setSoundEnabled(enabled) {
-  soundEnabled = enabled
-  localStorage.setItem('joyering-sound', enabled ? 'on' : 'off')
-}
+  function setSoundEnabled(enabled) {
+    soundEnabled = enabled
+    localStorage.setItem('joyering-sound', enabled ? 'on' : 'off')
+  }
 
   function loadSavedSoundSetting() {
-  const savedSound = localStorage.getItem('joyering-sound')
+    const savedSound = localStorage.getItem('joyering-sound')
 
-  if (savedSound === 'off') {
-    soundEnabled = false
-  } else {
-    soundEnabled = true
-  }
-}
-
-function getUrlLanguage() {
-  if (typeof window === 'undefined') return null
-
-  const params = new URLSearchParams(window.location.search)
-  const lang = params.get('lang')
-
-  if (lang === 'en' || lang === 'it' || lang === 'pt') {
-    return lang
+    if (savedSound === 'off') {
+      soundEnabled = false
+    } else {
+      soundEnabled = true
+    }
   }
 
-  return null
-}
+  function getUrlLanguage() {
+    if (typeof window === 'undefined') return null
 
-function loadSavedLanguage() {
-  // 1. FIRST: check URL (this is what you want!)
-  const urlLanguage = getUrlLanguage()
+    const params = new URLSearchParams(window.location.search)
+    const lang = params.get('lang')
 
-  if (urlLanguage) {
-    language = urlLanguage
-    localStorage.setItem('joyering-language', urlLanguage)
-    return
+    if (lang === 'en' || lang === 'it' || lang === 'pt') {
+      return lang
+    }
+
+    return null
   }
 
-  // 2. SECOND: check saved preference
-  const savedLanguage = localStorage.getItem('joyering-language')
+  function loadSavedLanguage() {
+    const urlLanguage = getUrlLanguage()
 
-  if (savedLanguage === 'en' || savedLanguage === 'it' || savedLanguage === 'pt') {
-    language = savedLanguage
-    return
+    if (urlLanguage) {
+      language = urlLanguage
+      localStorage.setItem('joyering-language', urlLanguage)
+      return
+    }
+
+    const savedLanguage = localStorage.getItem('joyering-language')
+
+    if (savedLanguage === 'en' || savedLanguage === 'it' || savedLanguage === 'pt') {
+      language = savedLanguage
+      return
+    }
+
+    const browserLang = navigator.language || ''
+
+    if (browserLang.startsWith('it')) {
+      language = 'it'
+    } else if (browserLang.startsWith('pt')) {
+      language = 'pt'
+    } else {
+      language = 'en'
+    }
+
+    localStorage.setItem('joyering-language', language)
   }
 
-  // 3. LAST: fallback to browser
-  const browserLang = navigator.language || ''
+  /**
+   * @param {'en' | 'it' | 'pt'} newLanguage
+   */
+  function setLanguage(newLanguage) {
+    language = newLanguage
+    localStorage.setItem('joyering-language', newLanguage)
 
-  if (browserLang.startsWith('it')) {
-    language = 'it'
-  } else if (browserLang.startsWith('pt')) {
-    language = 'pt'
-  } else {
-    language = 'en'
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href)
+      url.searchParams.set('lang', newLanguage)
+      window.history.replaceState({}, '', url.toString())
+    }
   }
-
-  localStorage.setItem('joyering-language', language)
-}
-
-/**
- * @param {'en' | 'it' | 'pt'} newLanguage
- */
-function setLanguage(newLanguage) {
-  language = newLanguage
-  localStorage.setItem('joyering-language', newLanguage)
-
-  if (typeof window !== 'undefined') {
-    const url = new URL(window.location.href)
-    url.searchParams.set('lang', newLanguage)
-    window.history.replaceState({}, '', url.toString())
-  }
-}
 
   /** @param {string} key */
   function t(key) {
@@ -570,7 +626,7 @@ function setLanguage(newLanguage) {
   }
 
   /** @param {import('@supabase/supabase-js').Session | null} session */
-async function syncUserAndState(session) {
+  async function syncUserAndState(session) {
     const nextUser = session?.user ?? null
     user = nextUser
 
@@ -602,100 +658,101 @@ async function syncUserAndState(session) {
   }
 
   onMount(() => {
-  /** @type {((e: any) => void) | null} */
-  let handleBeforeInstallPrompt = null
+    /** @type {((e: any) => void) | null} */
+    let handleBeforeInstallPrompt = null
 
-  /** @type {(() => void) | null} */
-  let handleAppInstalled = null
+    /** @type {(() => void) | null} */
+    let handleAppInstalled = null
 
-  const init = async () => {
-    try {
-      loadSavedTheme()
-      loadSavedLanguage()
-      loadSavedSoundSetting()
-      setupTapSounds()
+    const init = async () => {
+      try {
+        loadSavedTheme()
+        loadSavedLanguage()
+        loadSavedSoundSetting()
+        updateLegalConsentVisibility()
+        setupTapSounds()
 
-      preloadImages([
-        '/jars/jar-empty.gif',
-        '/jars/jar-1.gif',
-        '/jars/jar-2.gif',
-        '/jars/jar-3.gif',
-        '/jars/jar-4.gif',
-        '/jars/jar-5.gif',
-        '/jars/jar-6.gif',
-        '/jars/jar-7.gif',
-        '/jars/jar-8.gif',
-        '/jars/jar-mid.gif',
-        '/jars/jar-full.gif',
-        '/animations/release-butterflies.gif'
-      ])
+        preloadImages([
+          '/jars/jar-empty.gif',
+          '/jars/jar-1.gif',
+          '/jars/jar-2.gif',
+          '/jars/jar-3.gif',
+          '/jars/jar-4.gif',
+          '/jars/jar-5.gif',
+          '/jars/jar-6.gif',
+          '/jars/jar-7.gif',
+          '/jars/jar-8.gif',
+          '/jars/jar-mid.gif',
+          '/jars/jar-full.gif',
+          '/animations/release-butterflies.gif'
+        ])
 
-      for (let i = 1; i <= 10; i++) {
-        const img = new Image()
-        img.src = `/butterflies/pulse${i}.gif`
-      }
-
-      const dismissed = localStorage.getItem('joyering-install-dismissed')
-
-      if (isStandaloneMode() || dismissed === 'true') {
-        showInstallCard = false
-      }
-
-      handleBeforeInstallPrompt = (e) => {
-        e.preventDefault()
-        installPrompt = e
-        canInstall = true
-      }
-
-      handleAppInstalled = () => {
-        installPrompt = null
-        canInstall = false
-        showInstallCard = false
-        localStorage.setItem('joyering-install-dismissed', 'true')
-      }
-
-      window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
-      window.addEventListener('appinstalled', handleAppInstalled)
-
-      await restoreSessionAndState()
-
-      const { data } = supabase.auth.onAuthStateChange(async (_event, session) => {
-        try {
-          await syncUserAndState(session)
-        } catch (error) {
-          console.error('Error in auth state change:', error)
-        } finally {
-          isLoadingSession = false
+        for (let i = 1; i <= 10; i++) {
+          const img = new Image()
+          img.src = `/butterflies/pulse${i}.gif`
         }
-      })
 
-      authListener = data
-    } catch (error) {
-      console.error('Error during app startup:', error)
-      isLoadingSession = false
+        const dismissed = localStorage.getItem('joyering-install-dismissed')
+
+        if (isStandaloneMode() || dismissed === 'true') {
+          showInstallCard = false
+        }
+
+        handleBeforeInstallPrompt = (e) => {
+          e.preventDefault()
+          installPrompt = e
+          canInstall = true
+        }
+
+        handleAppInstalled = () => {
+          installPrompt = null
+          canInstall = false
+          showInstallCard = false
+          localStorage.setItem('joyering-install-dismissed', 'true')
+        }
+
+        window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+        window.addEventListener('appinstalled', handleAppInstalled)
+
+        await restoreSessionAndState()
+
+        const { data } = supabase.auth.onAuthStateChange(async (_event, session) => {
+          try {
+            await syncUserAndState(session)
+          } catch (error) {
+            console.error('Error in auth state change:', error)
+          } finally {
+            isLoadingSession = false
+          }
+        })
+
+        authListener = data
+      } catch (error) {
+        console.error('Error during app startup:', error)
+        isLoadingSession = false
+      }
     }
-  }
 
-  init()
+    init()
 
-  return () => {
-    if (handleBeforeInstallPrompt) {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+    return () => {
+      if (handleBeforeInstallPrompt) {
+        window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+      }
+
+      if (handleAppInstalled) {
+        window.removeEventListener('appinstalled', handleAppInstalled)
+      }
+
+      if (authListener?.subscription) {
+        authListener.subscription.unsubscribe()
+      }
     }
-
-    if (handleAppInstalled) {
-      window.removeEventListener('appinstalled', handleAppInstalled)
-    }
-
-    if (authListener?.subscription) {
-      authListener.subscription.unsubscribe()
-    }
-  }
-})
+  })
 
   /**
- * @param {{ icon: string; key: string }} category
- */
+   * @param {{ icon: string; key: string }} category
+   */
   function handleCategoryTap(category) {
     if (isReleasing || !user) return
 
@@ -733,37 +790,37 @@ async function syncUserAndState(session) {
   }
 
   function openCollection() {
-  screen = 'collection'
-}
-
-function letThemFly() {
-  if (butterflyCount < 21 || isReleasing || !user) return
-
-  if (soundEnabled) {
-    releaseSound?.play().catch(() => {})
+    screen = 'collection'
   }
 
-  if (resetTimer) {
-    clearTimeout(resetTimer)
-    resetTimer = null
+  function letThemFly() {
+    if (butterflyCount < 21 || isReleasing || !user) return
+
+    if (soundEnabled) {
+      releaseSound?.play().catch(() => {})
+    }
+
+    if (resetTimer) {
+      clearTimeout(resetTimer)
+      resetTimer = null
+    }
+
+    currentAnimatingCategory = null
+    currentPulseNumber = null
+
+    isReleasing = true
+
+    if (releaseTimer) {
+      clearTimeout(releaseTimer)
+    }
+
+    releaseTimer = setTimeout(() => {
+      butterflyCount = 0
+      isReleasing = false
+      releaseTimer = null
+      saveJoyState()
+    }, 3000)
   }
-
-  currentAnimatingCategory = null
-  currentPulseNumber = null
-
-  isReleasing = true
-
-  if (releaseTimer) {
-    clearTimeout(releaseTimer)
-  }
-
-  releaseTimer = setTimeout(() => {
-    butterflyCount = 0
-    isReleasing = false
-    releaseTimer = null
-    saveJoyState()
-  }, 3000)
-}
 
   onDestroy(() => {
     if (resetTimer) clearTimeout(resetTimer)
@@ -773,7 +830,6 @@ function letThemFly() {
       authListener.subscription.unsubscribe()
     }
   })
-
 </script>
 
 <svelte:head>
@@ -816,43 +872,46 @@ function letThemFly() {
           type="email"
           placeholder={t('emailPlaceholder')}
           bind:value={email}
+          on:input={updateLegalConsentVisibility}
         />
-      
-        <label class="legal-consent">
-          <input
-            type="checkbox"
-            bind:checked={hasAcceptedLegal}
-            on:change={() => (legalError = '')}
-          />
-        
-          <span>
-            {#if language === 'it'}
-              Accetto l’
-              <a href="https://joyering.com/it/privacy-policy" target="_blank" rel="noopener noreferrer">{t('privacyLabel')}</a>
-              e i
-              <a href="https://joyering.com/it/terms-and-conditions" target="_blank" rel="noopener noreferrer">{t('termsLabel')}</a>.
-            {:else if language === 'pt'}
-              Concordo com a
-              <a href="https://joyering.com/pt/privacy-policy" target="_blank" rel="noopener noreferrer">{t('privacyLabel')}</a>
-              e os
-              <a href="https://joyering.com/pt/terms-and-conditions" target="_blank" rel="noopener noreferrer">{t('termsLabel')}</a>.
-            {:else}
-              I agree to the
-              <a href="https://joyering.com/privacy-policy" target="_blank" rel="noopener noreferrer">{t('privacyLabel')}</a>
-              and
-              <a href="https://joyering.com/terms-and-conditions" target="_blank" rel="noopener noreferrer">{t('termsLabel')}</a>.
-            {/if}
-          </span>
-        </label>
-      
-        {#if legalError}
-          <p class="legal-error">{legalError}</p>
+
+        {#if showLegalConsent}
+          <label class="legal-consent">
+            <input
+              type="checkbox"
+              bind:checked={hasAcceptedLegal}
+              on:change={() => (legalError = '')}
+            />
+
+            <span>
+              {#if language === 'it'}
+                Accetto l’
+                <a href="https://joyering.com/it/privacy-policy" target="_blank" rel="noopener noreferrer">{t('privacyLabel')}</a>
+                e i
+                <a href="https://joyering.com/it/terms-and-conditions" target="_blank" rel="noopener noreferrer">{t('termsLabel')}</a>.
+              {:else if language === 'pt'}
+                Concordo com a
+                <a href="https://joyering.com/pt/privacy-policy" target="_blank" rel="noopener noreferrer">{t('privacyLabel')}</a>
+                e os
+                <a href="https://joyering.com/pt/terms-and-conditions" target="_blank" rel="noopener noreferrer">{t('termsLabel')}</a>.
+              {:else}
+                I agree to the
+                <a href="https://joyering.com/privacy-policy" target="_blank" rel="noopener noreferrer">{t('privacyLabel')}</a>
+                and
+                <a href="https://joyering.com/terms-and-conditions" target="_blank" rel="noopener noreferrer">{t('termsLabel')}</a>.
+              {/if}
+            </span>
+          </label>
+
+          {#if legalError}
+            <p class="legal-error">{legalError}</p>
+          {/if}
         {/if}
-      
+
         <button on:click={login} disabled={!email.trim()}>
           {t('sendLoginLink')}
         </button>
-      
+
         <p class="install-hint">
           {t('installHint')}
         </p>
@@ -949,17 +1008,16 @@ function letThemFly() {
           </button>
         {:else}
           <div class="collection-screen">
-
             {#if isReleasing}
-  <div class="release-screen">
-    <img
-      class="release-animation"
-      src="/animations/release-butterflies.gif"
-      alt=""
-      draggable="false"
-    />
-  </div>
-{:else}
+              <div class="release-screen">
+                <img
+                  class="release-animation"
+                  src="/animations/release-butterflies.gif"
+                  alt=""
+                  draggable="false"
+                />
+              </div>
+            {:else}
               <h1>{t('collectionTitle')}</h1>
               <p class="subtitle collection-subtitle">{t('collectionSubtitle')}</p>
 
@@ -1051,7 +1109,7 @@ function letThemFly() {
 
           <div class="settings-section">
             <p class="settings-label">{t('languageLabel')}</p>
-          
+
             <div class="settings-choice-row">
               <button
                 class:active-choice={language === 'en'}
@@ -1061,7 +1119,7 @@ function letThemFly() {
               >
                 English
               </button>
-          
+
               <button
                 class:active-choice={language === 'it'}
                 class="settings-choice"
@@ -1070,7 +1128,7 @@ function letThemFly() {
               >
                 Italiano
               </button>
-          
+
               <button
                 class:active-choice={language === 'pt'}
                 class="settings-choice"
@@ -1081,12 +1139,10 @@ function letThemFly() {
               </button>
             </div>
           </div>
-          
- 
-          
+
           <div class="settings-section">
             <p class="settings-label">{t('soundLabel')}</p>
-          
+
             <div class="settings-choice-row">
               <button
                 class:active-choice={soundEnabled}
@@ -1096,7 +1152,7 @@ function letThemFly() {
               >
                 {t('soundOn')}
               </button>
-          
+
               <button
                 class:active-choice={!soundEnabled}
                 class="settings-choice"
@@ -1114,17 +1170,17 @@ function letThemFly() {
             <p class="settings-label">{t('accountLabel')}</p>
             <p class="account-email">{user?.email}</p>
           </div>
-          
+
           <div class="settings-divider"></div>
-          
+
           <div class="settings-section legal-section">
             <p class="legal-brand">Joyering™</p>
             <p class="legal-copy">© 2026 Ulrika Torquato</p>
             <p class="legal-copy">All rights reserved.</p>
           </div>
-          
+
           <div class="settings-divider"></div>
-          
+
           <button
             class="settings-logout"
             type="button"
@@ -1135,14 +1191,13 @@ function letThemFly() {
         </div>
       </div>
     {/if}
-
   </div>
 {/if}
 
 {#if logoutMessage}
-<div class="toast-message">
-  {logoutMessage}
-</div>
+  <div class="toast-message">
+    {logoutMessage}
+  </div>
 {/if}
 
 <style>
@@ -1179,123 +1234,123 @@ function letThemFly() {
   }
 
   .auth-card {
-  width: 100%;
-  max-width: 460px;
-  padding: 38px 30px 30px;
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 18px;
-}
+    width: 100%;
+    max-width: 460px;
+    padding: 38px 30px 30px;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 18px;
+  }
 
-.auth-icon {
-  width: 88px;
-  height: 88px;
-  object-fit: contain;
-  margin-bottom: 2px;
-  user-select: none;
-  pointer-events: none;
-}
+  .auth-icon {
+    width: 88px;
+    height: 88px;
+    object-fit: contain;
+    margin-bottom: 2px;
+    user-select: none;
+    pointer-events: none;
+  }
 
-.auth-card h1 {
-  margin: 0;
-  font-size: 2.2rem;
-  line-height: 1.02;
-  font-weight: 700;
-}
+  .auth-card h1 {
+    margin: 0;
+    font-size: 2.2rem;
+    line-height: 1.02;
+    font-weight: 700;
+  }
 
-.auth-subtitle {
-  margin: 0;
-  font-size: 1rem;
-  line-height: 1.4;
-  opacity: 0.9;
-  max-width: 320px;
-}
+  .auth-subtitle {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.4;
+    opacity: 0.9;
+    max-width: 320px;
+  }
 
-.auth-form {
-  width: 100%;
-  max-width: 360px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  margin-top: 2px;
-}
+  .auth-form {
+    width: 100%;
+    max-width: 360px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-top: 2px;
+  }
 
-.auth-form input {
-  width: 100%;
-  height: 52px;
-  border: none;
-  border-radius: 12px;
-  padding: 0 16px;
-  font-size: 1rem;
-  outline: none;
-}
+  .auth-form input {
+    width: 100%;
+    height: 52px;
+    border: none;
+    border-radius: 12px;
+    padding: 0 16px;
+    font-size: 1rem;
+    outline: none;
+  }
 
-.legal-consent {
-  width: 100%;
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 10px;
-  text-align: left;
-  font-size: 0.88rem;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.82);
-  margin-top: 2px;
-}
+  .legal-consent {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 10px;
+    text-align: left;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.82);
+    margin-top: 2px;
+  }
 
-.legal-consent input[type='checkbox'] {
-  width: 16px;
-  height: 16px;
-  margin: 2px 0 0;
-  flex: 0 0 16px;
-  accent-color: #62c7cf;
-  cursor: pointer;
-}
+  .legal-consent input[type='checkbox'] {
+    width: 16px;
+    height: 16px;
+    margin: 2px 0 0;
+    flex: 0 0 16px;
+    accent-color: #62c7cf;
+    cursor: pointer;
+  }
 
-.legal-consent span {
-  flex: 1;
-  min-width: 0;
-}
+  .legal-consent span {
+    flex: 1;
+    min-width: 0;
+  }
 
-.legal-consent a {
-  color: #8adbe1;
-  text-decoration: none;
-}
+  .legal-consent a {
+    color: #8adbe1;
+    text-decoration: none;
+  }
 
-.legal-consent a:hover {
-  text-decoration: underline;
-}
+  .legal-consent a:hover {
+    text-decoration: underline;
+  }
 
-.legal-error {
-  width: 100%;
-  margin: -2px 0 0;
-  font-size: 0.84rem;
-  line-height: 1.4;
-  color: #ff9a9a;
-  text-align: left;
-}
+  .legal-error {
+    width: 100%;
+    margin: -2px 0 0;
+    font-size: 0.84rem;
+    line-height: 1.4;
+    color: #ff9a9a;
+    text-align: left;
+  }
 
-.auth-form button:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-  transform: none;
-}
+  .auth-form button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+  }
 
-.install-hint {
-  width: 100%;
-  max-width: 280px;
-  margin: 6px 0 0;
-  font-size: 0.88rem;
-  line-height: 1.45;
-  opacity: 0.72;
-  text-align: center;
-}
+  .install-hint {
+    width: 100%;
+    max-width: 280px;
+    margin: 6px 0 0;
+    font-size: 0.88rem;
+    line-height: 1.45;
+    opacity: 0.72;
+    text-align: center;
+  }
 
   .app-shell {
     min-height: 100vh;
@@ -1381,38 +1436,34 @@ function letThemFly() {
   }
 
   .auth-form button {
-  width: 100%;
-  min-height: 52px;
-  padding: 0 16px;
-  border-radius: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.25);
+    width: 100%;
+    min-height: 52px;
+    padding: 0 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+    background: #5fbcc3;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
 
-  background: #5fbcc3; /* slightly softer than before */
-  color: #ffffff;
+  .auth-form button:hover {
+    background: #52aeb5;
+    transform: translateY(-1px);
+    border-color: rgba(0, 0, 0, 0.35);
+  }
 
-  font-size: 1rem;
-  font-weight: 600;
+  .auth-form button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(95, 188, 195, 0.25);
+  }
 
-  cursor: pointer;
-
-  transition: all 0.2s ease;
-}
-
-.auth-form button:hover {
-  background: #52aeb5;
-  transform: translateY(-1px);
-  border-color: rgba(0, 0, 0, 0.35);
-}
-
-.auth-form button:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(95, 188, 195, 0.25);
-}
-
-.auth-form button:active {
-  background: #4aa5ac;
-  transform: translateY(0);
-}
+  .auth-form button:active {
+    background: #4aa5ac;
+    transform: translateY(0);
+  }
 
   .page {
     min-height: 100vh;
@@ -1688,36 +1739,36 @@ function letThemFly() {
   }
 
   .account-section {
-  text-align: center;
-}
+    text-align: center;
+  }
 
-.account-email {
-  margin: 4px 0 0;
-  font-size: 0.95rem;
-  line-height: 1.4;
-  font-weight: 600;
-  word-break: break-word;
-  opacity: 0.95;
-}
+  .account-email {
+    margin: 4px 0 0;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    font-weight: 600;
+    word-break: break-word;
+    opacity: 0.95;
+  }
 
   .legal-section {
-  text-align: center;
-  margin-bottom: 16px;
-}
+    text-align: center;
+    margin-bottom: 16px;
+  }
 
-.legal-brand {
-  margin: 0 0 6px;
-  font-size: 0.98rem;
-  font-weight: 700;
-  opacity: 0.95;
-}
+  .legal-brand {
+    margin: 0 0 6px;
+    font-size: 0.98rem;
+    font-weight: 700;
+    opacity: 0.95;
+  }
 
-.legal-copy {
-  margin: 0;
-  font-size: 0.82rem;
-  line-height: 1.4;
-  opacity: 0.72;
-}
+  .legal-copy {
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.4;
+    opacity: 0.72;
+  }
 
   .settings-modal {
     width: 100%;
@@ -1862,18 +1913,18 @@ function letThemFly() {
   }
 
   .toast-message {
-  position: fixed;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0,0,0,0.85);
-  color: white;
-  padding: 12px 18px;
-  border-radius: 10px;
-  font-size: 0.95rem;
-  z-index: 2000;
-  animation: fadeInOut 3s ease;
-}
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.85);
+    color: white;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    z-index: 2000;
+    animation: fadeInOut 3s ease;
+  }
 
   @media (max-width: 640px) {
     h1 {
@@ -1889,25 +1940,25 @@ function letThemFly() {
     }
 
     .auth-card {
-  max-width: 400px;
-  padding: 32px 22px 26px;
-  gap: 16px;
-}
+      max-width: 400px;
+      padding: 32px 22px 26px;
+      gap: 16px;
+    }
 
-.auth-icon {
-  width: 80px;
-  height: 80px;
-}
+    .auth-icon {
+      width: 80px;
+      height: 80px;
+    }
 
-.auth-card h1 {
-  font-size: 2rem;
-}
+    .auth-card h1 {
+      font-size: 2rem;
+    }
 
-.auth-subtitle {
-  font-size: 0.98rem;
-  line-height: 1.38;
-  max-width: 290px;
-}
+    .auth-subtitle {
+      font-size: 0.98rem;
+      line-height: 1.38;
+      max-width: 290px;
+    }
 
     .page {
       min-height: 100vh;
