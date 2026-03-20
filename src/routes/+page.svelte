@@ -828,19 +828,19 @@ function letThemFly() {
           <span>
             {#if language === 'it'}
               Accetto l’
-              <a href="/it/privacy-policy" target="_blank" rel="noopener noreferrer">{t('privacyLabel')}</a>
+              <a href="https://joyering.com/it/privacy-policy" target="_blank" rel="noopener noreferrer">{t('privacyLabel')}</a>
               e i
-              <a href="/it/terms-and-conditions" target="_blank" rel="noopener noreferrer">{t('termsLabel')}</a>.
+              <a href="https://joyering.com/it/terms-and-conditions" target="_blank" rel="noopener noreferrer">{t('termsLabel')}</a>.
             {:else if language === 'pt'}
               Concordo com a
-              <a href="/pt/privacy-policy" target="_blank" rel="noopener noreferrer">{t('privacyLabel')}</a>
+              <a href="https://joyering.com/pt/privacy-policy" target="_blank" rel="noopener noreferrer">{t('privacyLabel')}</a>
               e os
-              <a href="/pt/terms-and-conditions" target="_blank" rel="noopener noreferrer">{t('termsLabel')}</a>.
+              <a href="https://joyering.com/pt/terms-and-conditions" target="_blank" rel="noopener noreferrer">{t('termsLabel')}</a>.
             {:else}
               I agree to the
-              <a href="/privacy-policy" target="_blank" rel="noopener noreferrer">{t('privacyLabel')}</a>
+              <a href="https://joyering.com/privacy-policy" target="_blank" rel="noopener noreferrer">{t('privacyLabel')}</a>
               and
-              <a href="/terms-and-conditions" target="_blank" rel="noopener noreferrer">{t('termsLabel')}</a>.
+              <a href="https://joyering.com/terms-and-conditions" target="_blank" rel="noopener noreferrer">{t('termsLabel')}</a>.
             {/if}
           </span>
         </label>
