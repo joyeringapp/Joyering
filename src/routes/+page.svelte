@@ -824,7 +824,7 @@ function letThemFly() {
             bind:checked={hasAcceptedLegal}
             on:change={() => (legalError = '')}
           />
-      
+        
           <span>
             {#if language === 'it'}
               Accetto l’
@@ -1240,19 +1240,27 @@ function letThemFly() {
   width: 100%;
   display: flex;
   align-items: flex-start;
+  justify-content: flex-start;
   gap: 10px;
   text-align: left;
   font-size: 0.88rem;
-  line-height: 1.45;
+  line-height: 1.5;
   color: rgba(255, 255, 255, 0.82);
   margin-top: 2px;
 }
 
 .legal-consent input[type='checkbox'] {
-  margin-top: 2px;
-  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  margin: 2px 0 0;
+  flex: 0 0 16px;
   accent-color: #62c7cf;
   cursor: pointer;
+}
+
+.legal-consent span {
+  flex: 1;
+  min-width: 0;
 }
 
 .legal-consent a {
