@@ -85,6 +85,11 @@
       appSubtitle: 'A space for your joyful moments.',
       emailPlaceholder: 'Your email',
       sendLoginLink: 'Send login link',
+      loginCheckEmail: 'Check your email for the login link!',
+loginWait: 'Please wait a few seconds before trying again.',
+loginInvalidEmail: 'Please enter a valid email address.',
+loginErrorGeneric: 'Something went wrong. Please try again.',
+logoutMessage: 'You have been logged out',
       installHint: 'Your email is only used to access Joyering.',
 
       legalError: 'Please accept the Privacy Policy and Terms and Conditions to continue.',
@@ -109,7 +114,7 @@
 installHelpAndroid: 'To save Joyering on your phone, open the browser menu and choose "Install app" or "Add to Home screen".',
 installHelpGeneric: 'To save Joyering on your phone, open your browser menu and look for an install option.',
 
-      categories: {
+categories: {
         love: 'Love',
         friends: 'Friends',
         work: 'Work',
@@ -146,6 +151,11 @@ installHelpGeneric: 'To save Joyering on your phone, open your browser menu and 
       appSubtitle: 'Uno spazio per i tuoi momenti gioiosi.',
       emailPlaceholder: 'La tua email',
       sendLoginLink: 'Invia il link di accesso',
+      loginCheckEmail: 'Controlla la tua email per il link di accesso!',
+loginWait: 'Attendi qualche secondo prima di riprovare.',
+loginInvalidEmail: 'Inserisci un indirizzo email valido.',
+loginErrorGeneric: 'Qualcosa non ha funzionato. Riprova.',
+logoutMessage: 'Sei uscito da Joyering',
       installHint: 'La tua email è usata solo per accedere a Joyering.',
 
       legalError: 'Per favore, accetta l’Informativa sulla Privacy e i Termini e Condizioni per continuare.',
@@ -207,6 +217,11 @@ installHelpGeneric: 'Per salvare Joyering sul tuo telefono, apri il menu del bro
       appSubtitle: 'Um espaço para seus momentos de alegria.',
       emailPlaceholder: 'Seu e-mail',
       sendLoginLink: 'Enviar link de acesso',
+      loginCheckEmail: 'Verifique seu e-mail para o link de acesso!',
+loginWait: 'Espere alguns segundos antes de tentar novamente.',
+loginInvalidEmail: 'Digite um endereço de e-mail válido.',
+loginErrorGeneric: 'Algo não funcionou. Tente novamente.',
+logoutMessage: 'Você saiu do Joyering',
       installHint: 'Seu e-mail é usado apenas para acessar Joyering.',
 
       legalError: 'Por favor, aceite a Política de Privacidade e os Termos e Condições para continuar.',
@@ -361,29 +376,24 @@ async function login() {
   })
 
   if (error) {
-    alert(error.message)
-  } else {
-    if (!alreadyAccepted) {
-      saveLegalAcceptanceForEmail(normalizedEmail)
-    }
-
-    if (language === 'it') {
-      alert('Controlla la tua email per il link di accesso!')
-    } else if (language === 'pt') {
-      alert('Verifique seu e-mail para o link de acesso!')
-    } else {
-      alert('Check your email for the login link!')
-    }
-
-    email = ''
-    hasAcceptedLegal = false
-    showLegalConsent = true
+    alert(getLoginErrorMessage(error))
+    return
   }
+
+  if (!alreadyAccepted) {
+    saveLegalAcceptanceForEmail(normalizedEmail)
+  }
+
+  alert(t('loginCheckEmail'))
+
+  email = ''
+  hasAcceptedLegal = false
+  showLegalConsent = true
 }
 
   async function logout() {
     isSettingsOpen = false
-    logoutMessage = 'You have been logged out'
+    logoutMessage = t('logoutMessage')
 
     setTimeout(() => {
       logoutMessage = ''
@@ -488,6 +498,27 @@ async function login() {
   function t(key) {
     return translations[language]?.[key] || translations.en[key] || key
   }
+
+  /** @param {any} error */
+function getLoginErrorMessage(error) {
+  const raw = (error?.message || '').toLowerCase()
+
+  if (
+    raw.includes('security purposes') ||
+    raw.includes('wait') ||
+    raw.includes('seconds') ||
+    raw.includes('rate limit') ||
+    raw.includes('otp')
+  ) {
+    return t('loginWait')
+  }
+
+  if (raw.includes('invalid') && raw.includes('email')) {
+    return t('loginInvalidEmail')
+  }
+
+  return t('loginErrorGeneric')
+}
 
   function joyfulMomentText() {
     if (butterflyCount === 1) {
