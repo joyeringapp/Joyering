@@ -1462,6 +1462,11 @@ if (isStandaloneMode() || dismissCount >= 2) {
     background: rgba(0, 0, 0, 0.08);
   }
 
+  .app-shell.theme-light .collection-button {
+  background: #4fb3bb;
+  box-shadow: 0 10px 24px rgba(79, 179, 187, 0.35);
+}
+
   .app-shell.theme-light .settings-choice {
   background: rgba(0, 0, 0, 0.04);
   color: #151515;
