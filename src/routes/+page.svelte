@@ -391,20 +391,22 @@ async function login() {
   showLegalConsent = true
 }
 
-  async function logout() {
-    isSettingsOpen = false
-    logoutMessage = t('logoutMessage')
+async function logout() {
+  isSettingsOpen = false
 
-    setTimeout(() => {
-      logoutMessage = ''
-    }, 3000)
+  const { error } = await supabase.auth.signOut()
 
-    const { error } = await supabase.auth.signOut()
-
-    if (error) {
-      alert(error.message)
-    }
+  if (error) {
+    alert(error.message)
+    return
   }
+
+  logoutMessage = t('logoutMessage')
+
+  setTimeout(() => {
+    logoutMessage = ''
+  }, 3000)
+}
 
   function loadSavedTheme() {
     const savedTheme = localStorage.getItem('joyering-theme')
@@ -669,23 +671,21 @@ function getLoginErrorMessage(error) {
   }
 
   async function saveJoyState() {
-    if (!user) return
+  if (!user) return
 
-    const { error } = await supabase
-      .from('joy_state')
-      .upsert(
-        {
-          user_id: user.id,
-          butterfly_count: butterflyCount,
-          updated_at: new Date().toISOString()
-        },
-        { onConflict: 'user_id' }
-      )
+  const { error } = await supabase
+    .from('joy_state')
+    .update({
+      butterfly_count: butterflyCount,
+      updated_at: new Date().toISOString()
+    })
+    .eq('user_id', user.id)
 
-    if (error) {
-      console.error('Error saving joy state:', error)
-    }
+  if (error) {
+    console.error('Error saving joy state:', error)
+    alert(`Save error: ${error.message}`)
   }
+}
 
   /** @param {import('@supabase/supabase-js').Session | null} session */
   async function syncUserAndState(session) {
