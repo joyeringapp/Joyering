@@ -982,16 +982,16 @@ if (isStandaloneMode() || dismissCount >= 2) {
 
 {:else}
   <div class={`app-shell theme-${theme}`}>
-    {#if screen === 'garden'}
-      <button
-        class="settings-button"
-        type="button"
-        on:click={() => (isSettingsOpen = true)}
-        aria-label="Open settings"
-      >
-        ⚙
-      </button>
-    {/if}
+    {#if !isReleasing}
+  <button
+    class="settings-button"
+    type="button"
+    on:click={() => (isSettingsOpen = true)}
+    aria-label="Open settings"
+  >
+    ⚙
+  </button>
+{/if}
 
     <div class="page">
       <div class="wrapper">
