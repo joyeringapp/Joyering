@@ -1463,9 +1463,14 @@ if (isStandaloneMode() || dismissCount >= 2) {
   }
 
   .app-shell.theme-light .settings-choice {
-    background: rgba(0, 0, 0, 0.08);
-    color: #151515;
-  }
+  background: rgba(0, 0, 0, 0.04);
+  color: #151515;
+}
+
+.app-shell.theme-light .settings-choice.active-choice {
+  background: #4fb3bb;
+  color: #000;
+}
 
   .app-shell.theme-light .settings-logout {
     background: rgba(0, 0, 0, 0.08);
