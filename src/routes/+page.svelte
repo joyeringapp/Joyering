@@ -229,7 +229,7 @@ logoutMessage: 'Você saiu do Joyering',
       termsLabel: 'Termos e Condições',
 
       gardenTitle: 'O Jardim da Alegria',
-      gardenSubtitle: 'Capture um momento de alegria',
+      gardenSubtitle: 'Capture um momento especial',
       collectionButton: 'Ver sua coleção',
 
       collectionTitle: 'Momentos colecionados',
