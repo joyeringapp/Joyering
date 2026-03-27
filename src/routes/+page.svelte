@@ -384,8 +384,13 @@ if (!alreadyAccepted) {
   saveLegalAcceptanceForEmail(normalizedEmail)
 }
 
+const lang =
+  getUrlLanguage() ||
+  localStorage.getItem('joyering-language') ||
+  language
+
 alert(
-  translations[language]?.loginCheckEmail ||
+  translations[lang]?.loginCheckEmail ||
   translations.en.loginCheckEmail
 )
 
