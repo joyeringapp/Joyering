@@ -376,17 +376,18 @@ async function login() {
   })
 
   if (error) {
-    alert(getLoginErrorMessage(error))
-    return
-  }
+  alert(getLoginErrorMessage(error))
+  return
+}
 
-  if (!alreadyAccepted) {
-    saveLegalAcceptanceForEmail(normalizedEmail)
-  }
+if (!alreadyAccepted) {
+  saveLegalAcceptanceForEmail(normalizedEmail)
+}
 
-  setTimeout(() => {
-  alert(t('loginCheckEmail'))
-}, 0)
+alert(
+  translations[language]?.loginCheckEmail ||
+  translations.en.loginCheckEmail
+)
 
   email = ''
   hasAcceptedLegal = false
