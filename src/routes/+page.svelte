@@ -151,7 +151,7 @@ categories: {
       appSubtitle: 'Uno spazio per i tuoi momenti gioiosi.',
       emailPlaceholder: 'La tua email',
       sendLoginLink: 'Invia il link di accesso',
-      lloginCheckEmail: 'Controlla la tua email per il link di accesso!\nVerifica lo spam se necessario.',
+      loginCheckEmail: 'Controlla la tua email per il link di accesso!\nVerifica lo spam se necessario.',
 loginWait: 'Attendi qualche secondo prima di riprovare.',
 loginInvalidEmail: 'Inserisci un indirizzo email valido.',
 loginErrorGeneric: 'Qualcosa non ha funzionato. Riprova.',
@@ -384,15 +384,7 @@ if (!alreadyAccepted) {
   saveLegalAcceptanceForEmail(normalizedEmail)
 }
 
-const lang =
-  getUrlLanguage() ||
-  localStorage.getItem('joyering-language') ||
-  language
-
-alert(
-  translations[lang]?.loginCheckEmail ||
-  translations.en.loginCheckEmail
-)
+alert(t('loginCheckEmail'))
 
   email = ''
   hasAcceptedLegal = false
