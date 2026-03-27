@@ -384,7 +384,9 @@ async function login() {
     saveLegalAcceptanceForEmail(normalizedEmail)
   }
 
+  setTimeout(() => {
   alert(t('loginCheckEmail'))
+}, 0)
 
   email = ''
   hasAcceptedLegal = false
