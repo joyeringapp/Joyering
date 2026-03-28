@@ -705,33 +705,18 @@ function getLoginErrorMessage(error) {
   async function restoreSessionAndState() {
   isLoadingSession = true
 
-  try {
-    const { data, error } = await supabase.auth.getSession()
+  const { data, error } = await supabase.auth.getSession()
 
-    if (error) {
-      console.error('Error restoring session:', error)
-      isLoadingSession = false
-      return
-    }
-
-    let session = data.session ?? null
-
-    if (!session) {
-      const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession()
-
-      if (!refreshError) {
-        session = refreshData.session ?? null
-      } else {
-        console.warn('Session refresh failed:', refreshError)
-      }
-    }
-
-    await syncUserAndState(session)
-  } catch (error) {
-    console.error('Unexpected restore session error:', error)
-  } finally {
+  if (error) {
+    console.error('Error restoring session:', error)
+    user = null
+    butterflyCount = 0
     isLoadingSession = false
+    return
   }
+
+  await syncUserAndState(data.session ?? null)
+  isLoadingSession = false
 }
 
 onMount(() => {
@@ -740,12 +725,6 @@ onMount(() => {
 
   /** @type {(() => void) | null} */
   let handleAppInstalled = null
-
-  /** @type {(() => Promise<void>) | null} */
-  let handleVisibilityChange = null
-
-  /** @type {(() => Promise<void>) | null} */
-  let handlePageShow = null
 
   const init = async () => {
     try {
@@ -793,20 +772,8 @@ onMount(() => {
         showInstallCard = false
       }
 
-      handleVisibilityChange = async () => {
-        if (document.visibilityState === 'visible') {
-          await restoreSessionAndState()
-        }
-      }
-
-      handlePageShow = async () => {
-        await restoreSessionAndState()
-      }
-
       window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
       window.addEventListener('appinstalled', handleAppInstalled)
-      document.addEventListener('visibilitychange', handleVisibilityChange)
-      window.addEventListener('pageshow', handlePageShow)
 
       await restoreSessionAndState()
 
@@ -836,14 +803,6 @@ onMount(() => {
 
     if (handleAppInstalled) {
       window.removeEventListener('appinstalled', handleAppInstalled)
-    }
-
-    if (handleVisibilityChange) {
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-    }
-
-    if (handlePageShow) {
-      window.removeEventListener('pageshow', handlePageShow)
     }
 
     if (authListener?.subscription) {
