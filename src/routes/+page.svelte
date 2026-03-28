@@ -235,7 +235,7 @@ logoutMessage: 'Você saiu do Joyering',
       collectionTitle: 'Momentos colecionados',
       collectionSubtitle: 'Solte quando chegar a 21',
       flyButton: 'Deixe voar!',
-      collectMoreJoy: 'Colecionar mais momentos',
+      collectMoreJoy: 'Colecionar mais alegria',
 
       installCardTitle: 'Mantenha Joyering por perto',
       installCardText: 'Adicione Joyering ao celular para ter acesso fácil a qualquer momento.',
