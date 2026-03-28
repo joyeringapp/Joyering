@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Joyering</string>
+    <string name="title_activity_main">Joyering</string>
+    <string name="package_name">com.joyering.app</string>
+    <string name="custom_url_scheme">com.joyering.app</string>
+</resources>
