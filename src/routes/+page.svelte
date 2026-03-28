@@ -703,114 +703,156 @@ function getLoginErrorMessage(error) {
   }
 
   async function restoreSessionAndState() {
-    isLoadingSession = true
+  isLoadingSession = true
 
+  try {
     const { data, error } = await supabase.auth.getSession()
 
     if (error) {
       console.error('Error restoring session:', error)
-      user = null
-      butterflyCount = 0
       isLoadingSession = false
       return
     }
 
-    await syncUserAndState(data.session ?? null)
+    let session = data.session ?? null
+
+    if (!session) {
+      const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession()
+
+      if (!refreshError) {
+        session = refreshData.session ?? null
+      } else {
+        console.warn('Session refresh failed:', refreshError)
+      }
+    }
+
+    await syncUserAndState(session)
+  } catch (error) {
+    console.error('Unexpected restore session error:', error)
+  } finally {
     isLoadingSession = false
   }
-
-  onMount(() => {
-    /** @type {((e: any) => void) | null} */
-    let handleBeforeInstallPrompt = null
-
-    /** @type {(() => void) | null} */
-    let handleAppInstalled = null
-
-    const init = async () => {
-      try {
-        loadSavedTheme()
-        loadSavedLanguage()
-        loadSavedSoundSetting()
-        updateLegalConsentVisibility()
-        setupTapSounds()
-
-        preloadImages([
-          '/jars/jar-empty.gif',
-          '/jars/jar-1.gif',
-          '/jars/jar-2.gif',
-          '/jars/jar-3.gif',
-          '/jars/jar-4.gif',
-          '/jars/jar-5.gif',
-          '/jars/jar-6.gif',
-          '/jars/jar-7.gif',
-          '/jars/jar-8.gif',
-          '/jars/jar-mid.gif',
-          '/jars/jar-full.gif',
-          '/animations/release-butterflies.gif'
-        ])
-
-        for (let i = 1; i <= 10; i++) {
-          const img = new Image()
-          img.src = `/butterflies/pulse${i}.gif`
-        }
-
-        const dismissCount = getInstallDismissCount()
-
-if (isStandaloneMode() || dismissCount >= 2) {
-  showInstallCard = false
 }
 
-        handleBeforeInstallPrompt = (e) => {
-          e.preventDefault()
-          installPrompt = e
-          canInstall = true
+onMount(() => {
+  /** @type {((e: any) => void) | null} */
+  let handleBeforeInstallPrompt = null
+
+  /** @type {(() => void) | null} */
+  let handleAppInstalled = null
+
+  /** @type {(() => Promise<void>) | null} */
+  let handleVisibilityChange = null
+
+  /** @type {(() => Promise<void>) | null} */
+  let handlePageShow = null
+
+  const init = async () => {
+    try {
+      loadSavedTheme()
+      loadSavedLanguage()
+      loadSavedSoundSetting()
+      updateLegalConsentVisibility()
+      setupTapSounds()
+
+      preloadImages([
+        '/jars/jar-empty.gif',
+        '/jars/jar-1.gif',
+        '/jars/jar-2.gif',
+        '/jars/jar-3.gif',
+        '/jars/jar-4.gif',
+        '/jars/jar-5.gif',
+        '/jars/jar-6.gif',
+        '/jars/jar-7.gif',
+        '/jars/jar-8.gif',
+        '/jars/jar-mid.gif',
+        '/jars/jar-full.gif',
+        '/animations/release-butterflies.gif'
+      ])
+
+      for (let i = 1; i <= 10; i++) {
+        const img = new Image()
+        img.src = `/butterflies/pulse${i}.gif`
+      }
+
+      const dismissCount = getInstallDismissCount()
+
+      if (isStandaloneMode() || dismissCount >= 2) {
+        showInstallCard = false
+      }
+
+      handleBeforeInstallPrompt = (e) => {
+        e.preventDefault()
+        installPrompt = e
+        canInstall = true
+      }
+
+      handleAppInstalled = () => {
+        installPrompt = null
+        canInstall = false
+        showInstallCard = false
+      }
+
+      handleVisibilityChange = async () => {
+        if (document.visibilityState === 'visible') {
+          await restoreSessionAndState()
         }
+      }
 
-        handleAppInstalled = () => {
-  installPrompt = null
-  canInstall = false
-  showInstallCard = false
-}
-
-        window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
-        window.addEventListener('appinstalled', handleAppInstalled)
-
+      handlePageShow = async () => {
         await restoreSessionAndState()
-
-        const { data } = supabase.auth.onAuthStateChange(async (_event, session) => {
-          try {
-            await syncUserAndState(session)
-          } catch (error) {
-            console.error('Error in auth state change:', error)
-          } finally {
-            isLoadingSession = false
-          }
-        })
-
-        authListener = data
-      } catch (error) {
-        console.error('Error during app startup:', error)
-        isLoadingSession = false
       }
+
+      window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+      window.addEventListener('appinstalled', handleAppInstalled)
+      document.addEventListener('visibilitychange', handleVisibilityChange)
+      window.addEventListener('pageshow', handlePageShow)
+
+      await restoreSessionAndState()
+
+      const { data } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        try {
+          await syncUserAndState(session)
+        } catch (error) {
+          console.error('Error in auth state change:', error)
+        } finally {
+          isLoadingSession = false
+        }
+      })
+
+      authListener = data
+    } catch (error) {
+      console.error('Error during app startup:', error)
+      isLoadingSession = false
+    }
+  }
+
+  init()
+
+  return () => {
+    if (handleBeforeInstallPrompt) {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
     }
 
-    init()
-
-    return () => {
-      if (handleBeforeInstallPrompt) {
-        window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
-      }
-
-      if (handleAppInstalled) {
-        window.removeEventListener('appinstalled', handleAppInstalled)
-      }
-
-      if (authListener?.subscription) {
-        authListener.subscription.unsubscribe()
-      }
+    if (handleAppInstalled) {
+      window.removeEventListener('appinstalled', handleAppInstalled)
     }
-  })
 
+    if (handleVisibilityChange) {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+
+    if (handlePageShow) {
+      window.removeEventListener('pageshow', handlePageShow)
+    }
+
+    if (authListener?.subscription) {
+      authListener.subscription.unsubscribe()
+    }
+  }
+})
+
+  
   /**
    * @param {{ icon: string; key: string }} category
    */
