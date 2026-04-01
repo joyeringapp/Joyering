@@ -1,8 +1,6 @@
 <script>
   import { onMount, onDestroy } from 'svelte'
   import { supabase } from '$lib/supabase'
-  import { Capacitor } from '@capacitor/core'
-  import { App } from '@capacitor/app'
 
   let email = ''
   let isLoadingSession = true
@@ -789,49 +787,12 @@ onMount(() => {
 
       await restoreSessionAndState()
 
-      if (Capacitor.isNativePlatform()) {
-        /** @param {string | undefined} incomingUrl */
-        const handleAuthUrl = async (incomingUrl) => {
-          if (!incomingUrl) return
-
-          try {
-            const parsed = new URL(incomingUrl)
-            const lang = parsed.searchParams.get('lang')
-
-            if (lang === 'en' || lang === 'it' || lang === 'pt') {
-              language = lang
-              localStorage.setItem('joyering-language', lang)
-            }
-
-            const tokenHash = parsed.searchParams.get('token_hash')
-            const type = parsed.searchParams.get('type')
-
-            if (tokenHash && type === 'email') {
-              await supabase.auth.verifyOtp({
-                token_hash: tokenHash,
-                type: 'email'
-              })
-            } else if (incomingUrl.includes('code=')) {
-              await supabase.auth.exchangeCodeForSession(incomingUrl)
-            }
-          } catch (error) {
-            console.error('Deep link auth error:', error)
-          }
-        }
-
-        const launchData = await App.getLaunchUrl()
-        await handleAuthUrl(launchData?.url)
-
-        App.addListener('appUrlOpen', async (data) => {
-          await handleAuthUrl(data?.url)
-        })
-      }
-
       const { data } = supabase.auth.onAuthStateChange(async (_event, session) => {
         try {
           await syncUserAndState(session)
         } catch (error) {
           console.error('Error in auth state change:', error)
+
         } finally {
           isLoadingSession = false
         }
