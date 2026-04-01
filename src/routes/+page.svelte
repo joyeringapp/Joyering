@@ -741,14 +741,6 @@ onMount(() => {
 
         if (url.searchParams.get('code')) {
           await supabase.auth.exchangeCodeForSession(window.location.href)
-
-          url.searchParams.delete('code')
-          url.searchParams.delete('type')
-          url.searchParams.delete('access_token')
-          url.searchParams.delete('refresh_token')
-          url.searchParams.delete('token_hash')
-
-          window.history.replaceState({}, '', url.toString())
         }
       }
 
