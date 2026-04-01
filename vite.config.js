@@ -16,7 +16,7 @@ export default {
         theme_color: '#000000',
         background_color: '#000000',
         display: 'standalone',
-        start_url: '/',
+        start_url: '/?source=pwa',
         icons: [
           {
             src: '/icon-192.png',
