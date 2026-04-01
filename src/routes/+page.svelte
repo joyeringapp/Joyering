@@ -865,27 +865,26 @@ onMount(() => {
   /**
    * @param {{ icon: string; key: string }} category
    */
-  function handleCategoryTap(category) {
-    if (isReleasing || !user) return
+   function handleCategoryTap(category) {
+  if (isReleasing || !user) return
 
-    playRandomTapSound()
+  butterflyCount += 1
+  currentPulseNumber = ((butterflyCount - 1) % 10) + 1
+  currentAnimatingCategory = category.key
 
-    butterflyCount += 1
-    saveJoyState()
-
-    currentPulseNumber = ((butterflyCount - 1) % 10) + 1
-    currentAnimatingCategory = category.key
-
-    if (resetTimer) {
-      clearTimeout(resetTimer)
-    }
-
-    resetTimer = setTimeout(() => {
-      currentAnimatingCategory = null
-      currentPulseNumber = null
-      resetTimer = null
-    }, 1000)
+  if (resetTimer) {
+    clearTimeout(resetTimer)
   }
+
+  resetTimer = setTimeout(() => {
+    currentAnimatingCategory = null
+    currentPulseNumber = null
+    resetTimer = null
+  }, 1000)
+
+  playRandomTapSound()
+  saveJoyState()
+}
 
   function getJarImage() {
     if (butterflyCount === 0) return '/jars/jar-empty.gif'
