@@ -1246,7 +1246,9 @@ onMount(() => {
           <div class="settings-divider"></div>
 
           <div class="settings-section legal-section">
-            <p class="legal-brand">Joyering®</p>
+            <p class="legal-brand">
+              Joyering<span class="registered">®</span>
+            </p>
             <p class="legal-copy">© 2026 Ulrika Torquato</p>
             <p class="legal-copy">All rights reserved.</p>
           </div>
@@ -1407,6 +1409,12 @@ onMount(() => {
     color: #ff9a9a;
     text-align: left;
   }
+
+  .registered {
+  font-size: 0.6em;
+  vertical-align: super;
+  margin-left: 2px;
+}
 
   .auth-form button:disabled {
     opacity: 0.55;
