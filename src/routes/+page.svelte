@@ -403,6 +403,10 @@ async function logout() {
     return
   }
 
+  user = null
+  butterflyCount = 0
+  screen = 'garden'
+
   logoutMessage = t('logoutMessage')
 
   setTimeout(() => {
